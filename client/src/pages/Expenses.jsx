@@ -7,6 +7,7 @@ export default function Expenses() {
   const [file, setFile] = useState(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const role = localStorage.getItem('role') || '';
 
   async function load() {
     try {
@@ -32,7 +33,8 @@ export default function Expenses() {
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold">Expenses</h1>
-      <form onSubmit={onSubmit} className="card space-y-3">
+      {role === 'accountant' ? (
+        <form onSubmit={onSubmit} className="card space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div><label className="label">Date</label><input type="date" className="input" value={form.date} onChange={e=>setForm({...form, date:e.target.value})} /></div>
           <div><label className="label">By</label><input className="input" value={form.by} onChange={e=>setForm({...form, by:e.target.value})} /></div>
@@ -43,7 +45,10 @@ export default function Expenses() {
         </div>
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <button className="btn w-full" disabled={loading}>{loading ? 'Saving...' : 'Add Expense'}</button>
-      </form>
+        </form>
+      ) : (
+        <div className="card p-4 text-sm text-slate-600">Only the accountant can add expenses. If you need to submit an expense, please contact the accountant.</div>
+      )}
 
       <div className="grid gap-3">
         {list.map((x) => (

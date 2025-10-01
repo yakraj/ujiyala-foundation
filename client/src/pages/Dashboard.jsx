@@ -334,6 +334,19 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                           <span className="font-medium">Donation Amount:</span> ₹
                           {item.amount?.toLocaleString() || 0}
                         </p>
+                        <p className="text-sm text-gray-600">
+                          <span className="font-medium">Payment Verified:</span> {item.paymentVerified ? 'Yes' : 'No'}
+                        </p>
+                        {item.receivedBy && (
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">Received By:</span> {item.receivedBy}
+                          </p>
+                        )}
+                        {item.addedBy && (
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">Added By:</span> {item.addedBy}
+                          </p>
+                        )}
                       </div>
                     )}
 
@@ -459,6 +472,11 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                           <span>Download Certificate</span>
                         </button>
                       )}
+                      {type === 'donations' && localStorage.getItem('role') === 'accountant' && !item.paymentVerified && (
+                        <button className="flex items-center space-x-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors text-sm" onClick={async()=>{ await api.post(`/donations/${item._id}/verify`); const { data } = await api.get('/donations/pending'); setModalData(data.donations || []); }}>
+                          <span>Verify Payment</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -504,8 +522,13 @@ export default function Dashboard() {
 
     try {
       // Handle special case for membersfund endpoint
-      const endpoint = type === "membersfund" ? "/membersfund" : `/${type}`;
-      const { data } = await api.get(endpoint);
+  // special endpoints
+  let endpoint = '';
+  if (type === 'membersfund') endpoint = '/membersfund';
+  else if (type === 'pending') endpoint = '/donations/pending';
+  else if (type === 'memberrequests') endpoint = '/members/requests';
+  else endpoint = `/${type}`;
+  const { data } = await api.get(endpoint);
 
       if (data.ok) {
         // Handle different response structures
@@ -524,6 +547,10 @@ export default function Dashboard() {
             ? "All Members"
             : type === "membersfund"
             ? "Members Fund"
+            : type === 'pending'
+            ? 'Pending Receipts'
+            : type === 'memberrequests'
+            ? 'Member Requests'
             : "All Expenses"
         );
         setModalOpen(true);
@@ -750,6 +777,23 @@ export default function Dashboard() {
                   </div>
                 </div>
               </button>
+
+              {/* Pending receipts - visible to accountant, president and secretary (approve or verify based on role) */}
+              {['accountant','president','secretary'].includes(localStorage.getItem('role')) && (
+                <button onClick={()=>window.location.href='/pending-actions'} className="p-4 bg-white rounded-xl border border-gray-200 hover:border-yellow-300 hover:bg-yellow-50 transition-all duration-200 text-left">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-900">Pending Actions</div>
+                      <div className="text-sm text-gray-500">View all pending donations & requests</div>
+                    </div>
+                  </div>
+                </button>
+              )}
 
               <button
                 onClick={() => fetchModalData("expenses")}

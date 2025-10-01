@@ -13,19 +13,49 @@ const registerSchema = {
     name: z.string().min(2),
     email: z.string().email(),
     password: z.string().min(8),
+    role: z.string().optional(),
+    memberType: z.string().optional(),
+    initialPaidAmount: z.number().nonnegative().optional(),
   }),
 };
 
 router.post("/register-admin", validate(registerSchema), async (req, res) => {
-  const { name, email, password } = req.body;
+  // Debug: log incoming body to help troubleshoot bad requests (remove in production)
+  console.debug('/api/auth/register-admin incoming body:', JSON.stringify(req.body));
+  const { name, email, password, role, memberType, initialPaidAmount } = req.body;
   const exists = await User.findOne({ email });
   if (exists)
     return res.status(409).json({ ok: false, message: "Email already exists" });
   const passwordHash = await bcrypt.hash(password, 10);
-  const user = await User.create({ name, email, passwordHash, role: "admin" });
+
+  // Normalize role and memberType inputs to lowercase strings
+  const allowedRoles = ['president','vice_president','accountant','secretary','member','admin'];
+  const allowedMemberTypes = ['honorary','general','founder'];
+  const normalizedRole = role ? String(role).toLowerCase() : 'member';
+  const normalizedMemberType = memberType ? String(memberType).toLowerCase() : 'general';
+
+  // Validate normalized values, fallback to defaults if invalid
+  const finalRole = allowedRoles.includes(normalizedRole) ? normalizedRole : 'member';
+  const finalMemberType = allowedMemberTypes.includes(normalizedMemberType) ? normalizedMemberType : 'general';
+
+  const user = await User.create({
+    name,
+    email,
+    passwordHash,
+    role: finalRole,
+    memberType: finalMemberType,
+    initialPaidAmount: initialPaidAmount || 0,
+  });
   return res.json({
     ok: true,
-    user: { id: user._id, name: user.name, email: user.email },
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      memberType: user.memberType,
+      initialPaidAmount: user.initialPaidAmount,
+    },
   });
 });
 
@@ -49,7 +79,7 @@ router.post("/login", validate(loginSchema), async (req, res) => {
   res.json({
     ok: true,
     token,
-    user: { id: user._id, name: user.name, email: user.email },
+    user: { id: user._id, name: user.name, email: user.email, role: user.role },
   });
 });
 

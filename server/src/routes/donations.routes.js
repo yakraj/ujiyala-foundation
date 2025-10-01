@@ -23,10 +23,9 @@ router.post('/', requireAuth, validate(createSchema), async (req, res, next) => 
   try {
     const body = { ...req.body };
     if (body.date) body.date = new Date(body.date);
+    // mark who added it; it remains unverified until accountant verifies
+    body.addedBy = req.user.sub;
     const donation = await Donation.create(body);
-    const pdfPath = await generateReceiptPDF('donation', donation.toObject());
-    donation.receiptPdfPath = pdfPath;
-    await donation.save();
     res.json({ ok: true, donation });
   } catch (e) { next(e); }
 });
@@ -38,4 +37,64 @@ router.get('/', requireAuth, async (req, res, next) => {
   } catch (e) { next(e); }
 });
 
+// list pending (unverified) donations
+router.get('/pending', requireAuth, async (req, res, next) => {
+  try {
+    console.debug('/api/donations/pending called by user:', req.user && { sub: req.user.sub, role: req.user.role });
+    const donations = await Donation.find({ verified: false }).sort({ createdAt: -1 }).limit(200);
+    console.debug('pending donations found:', donations.length);
+    // populate addedBy and verifiedBy user names if possible
+    const User = (await import('../models/User.js')).default;
+    const enriched = await Promise.all(donations.map(async d=>{
+      const obj = d.toObject();
+      if (obj.addedBy) {
+        const u = await User.findById(obj.addedBy).select('name');
+        obj.addedByName = u?.name || obj.addedBy;
+      }
+      return obj;
+    }));
+    res.json({ ok: true, donations: enriched });
+  } catch (e) { next(e); }
+});
+
+// Bulk verify donations (accountant only)
+router.post('/verify-bulk', requireAuth, async (req, res, next) => {
+  try {
+    if (req.user.role !== 'accountant') return res.status(403).json({ ok:false, message: 'Forbidden' });
+    const ids = req.body?.ids || [];
+    const results = [];
+    for (const id of ids) {
+      const donation = await Donation.findById(id);
+      if (!donation) continue;
+      donation.verified = true;
+      donation.paymentVerified = true;
+      donation.verifiedBy = req.user.sub;
+      donation.receivedBy = req.user.sub;
+      const pdfPath = await generateReceiptPDF('donation', donation.toObject());
+      donation.receiptPdfPath = pdfPath;
+      await donation.save();
+      results.push(donation.toObject());
+    }
+    res.json({ ok: true, results });
+  } catch (e) { next(e); }
+});
+
 export default router;
+
+// Accountant-only verify endpoint (kept at bottom for clarity)
+router.post('/:id/verify', requireAuth, async (req, res, next) => {
+  try {
+    if (req.user.role !== 'accountant') return res.status(403).json({ ok:false, message: 'Forbidden' });
+    const id = req.params.id;
+    const donation = await Donation.findById(id);
+    if (!donation) return res.status(404).json({ ok:false, message: 'Not found' });
+  donation.verified = true;
+  donation.paymentVerified = true;
+  donation.verifiedBy = req.user.sub;
+  donation.receivedBy = req.user.sub;
+  const pdfPath = await generateReceiptPDF('donation', donation.toObject());
+  donation.receiptPdfPath = pdfPath;
+    await donation.save();
+    res.json({ ok: true, donation });
+  } catch (e) { next(e); }
+});

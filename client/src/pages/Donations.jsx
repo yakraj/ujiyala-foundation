@@ -7,6 +7,7 @@ export default function Donations() {
   const [form, setForm] = useState({ donorName:'', phone:'', amount:'', donationType:'general', method:'cash', date:new Date().toISOString().slice(0,10), note:'' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const role = localStorage.getItem('role') || '';
 
   async function load() {
     try {
@@ -62,11 +63,16 @@ export default function Donations() {
         {list.map(d => (
           <div key={d._id} className="card flex items-start justify-between gap-3">
             <div>
-              <div className="font-medium">{d.donorName} • ₹{d.amount}</div>
+              <div className="font-medium">{d.donorName} • ₹{d.amount} {d.verified ? <span className="text-sm text-green-600">(verified)</span> : <span className="text-sm text-orange-600">(pending)</span>}</div>
               <div className="text-sm text-slate-500">{new Date(d.date).toLocaleDateString()} • {d.method} • {d.donationType || d.type || 'general'}</div>
               {d.note && <div className="text-sm mt-1">{d.note}</div>}
             </div>
-            {d.receiptPdfPath && <a className="text-sky-600 text-sm underline" href={d.receiptPdfPath} target="_blank">Receipt PDF</a>}
+            <div className="flex flex-col gap-2">
+              {role === 'accountant' && !d.verified && (
+                <button className="btn" onClick={async()=>{ await api.post(`/donations/${d._id}/verify`); load(); }}>Verify</button>
+              )}
+              {d.receiptPdfPath && <a className="text-sky-600 text-sm underline" href={d.receiptPdfPath} target="_blank">Receipt PDF</a>}
+            </div>
           </div>
         ))}
       </div>

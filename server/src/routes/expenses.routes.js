@@ -28,6 +28,7 @@ router.post(
   async (req, res, next) => {
     console.log(req.body);
     try {
+      if (req.user.role !== 'accountant') return res.status(403).json({ ok:false, message: 'Forbidden' });
       const parsed = createSchema.body.parse(req.body);
       const body = {
         ...parsed,

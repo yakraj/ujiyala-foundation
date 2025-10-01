@@ -4,12 +4,14 @@ import Expenses from "./pages/Expenses";
 import Members from "./pages/Members";
 import Donations from "./pages/Donations";
 import Activity from "./pages/Activity";
+import PendingActions from "./pages/PendingActions";
 import Login from "./pages/Login";
 import BottomNav from "./components/BottomNav";
 
 function Nav() {
   const token = localStorage.getItem("token");
   const navigate = useNavigate();
+  const role = localStorage.getItem('role') || '';
   return (
     <div className="sticky top-0 z-10 bg-white border-b">
       <div className="max-w-4xl mx-auto flex items-center justify-between p-3">
@@ -25,12 +27,14 @@ function Nav() {
           </Link>
           <p className="app-tag">Account and finance app</p>
         </div>
-        <div className="flex gap-3 text-sm">
+        <div className="flex items-center gap-4 text-sm">
+          {role && <div className="text-sm text-slate-600">Role: <span className="font-medium">{role}</span></div>}
           {token ? (
             <button
               className="btn"
               onClick={() => {
                 localStorage.removeItem("token");
+                localStorage.removeItem("role");
                 navigate("/login");
               }}
             >
@@ -98,6 +102,14 @@ export default function App() {
             element={
               <Protected>
                 <Activity />
+              </Protected>
+            }
+          />
+          <Route
+            path="/pending-actions"
+            element={
+              <Protected>
+                <PendingActions />
               </Protected>
             }
           />

@@ -4,6 +4,8 @@ import Expense from '../models/Expense.js';
 
 export async function computeSummary() {
   const [donationsAgg] = await Donation.aggregate([
+    // sum only verified donations
+    { $match: { verified: true } },
     { $group: { _id: null, total: { $sum: '$amount' } } }
   ]);
   const donations = donationsAgg?.total || 0;

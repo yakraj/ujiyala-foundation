@@ -16,6 +16,7 @@ export default function Login() {
       const { data } = await api.post('/auth/login', { email, password })
       if (data.ok) {
         localStorage.setItem('token', data.token)
+        if (data.user?.role) localStorage.setItem('role', data.user.role)
         navigate('/')
       } else setError(data.message || 'Login failed')
     } catch (err) {
