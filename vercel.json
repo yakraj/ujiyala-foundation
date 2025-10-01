@@ -9,8 +9,8 @@
       "use": "@vercel/node"
     }
   ],
-  "routes": [
-    { "src": "/api/(.*)", "dest": "server/src/server.js" },
-    { "src": "/(.*)", "dest": "client/dist/$1" }
+  "rewrites": [
+    { "source": "/api/:match*", "destination": "/server/src/server.js" },
+    { "source": "/:match*", "destination": "/client/dist/:match*" }
   ]
 }
