@@ -7,6 +7,7 @@ import Activity from "./pages/Activity";
 import PendingActions from "./pages/PendingActions";
 import Login from "./pages/Login";
 import BottomNav from "./components/BottomNav";
+import logo from '../assets/ujiyala_logo.png';
 
 function Nav() {
   const token = localStorage.getItem("token");
@@ -16,7 +17,7 @@ function Nav() {
     <div className="sticky top-0 z-10 bg-white border-b">
       <div className="max-w-4xl mx-auto flex items-center justify-between p-3">
         <img
-          src="../assets/ujiyala_logo.png"
+          src={logo}
           alt="Ujiyala Foundation"
           className="w-20 h-20"
         />

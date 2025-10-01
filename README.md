@@ -1,106 +1,93 @@
 
-# Ujiyala Foundation
 
-Elegant, secure, and production-ready financial management for small NGOs.
+# Ujiyala Foundation — Showcase Edition
 
-Ujiyala Foundation pairs a modern React + Vite + Tailwind front-end with a robust Node.js + Express + MongoDB back-end to provide a complete solution for membership, donations, receipts, expenses, and role-driven approval workflows.
+![Ujiyala Logo](client/assets/ujiyala_logo.png)
 
-Why this project
-- Built for transparency: role-based approvals and accountant-verified receipts ensure checks and balances.
-- Privacy-first: only authorized roles see sensitive records.
-- Practical: PDF receipts, image uploads, and mobile-first UI streamline day-to-day operations.
-- Extensible: modular code and clear routes make integrations straightforward.
+One-line pitch: a beautiful, role-driven, production-ready financial management web app built for small NGOs.
 
-Key features
-- Role-based admin accounts (president, secretary, accountant, vice_president, member)
-- Member request workflow: members request → president & secretary approve → accountant confirms payment and issues receipts
-- Donation tracking with categories, accountant verification, and PDF receipts
-- Expense recording (accountant-only) with optional receipt images
-- Mobile-first dashboard with remaining balance, totals, and quick actions
-- File uploads (Cloudinary-ready middleware) and server-side PDF generation
-- Security: Helmet, CORS, rate limiting, Zod validation, JWT auth, and error handling
+Badges
+- Build: [![Build Status](https://img.shields.io/badge/build-passing-brightgreen)](#)
+- License: [![License](https://img.shields.io/badge/license-proprietary-blue)](#)
 
-Tech stack
-- Frontend: React, Vite, Tailwind CSS, Axios
-- Backend: Node.js, Express, Mongoose (MongoDB)
-- Auth: JSON Web Tokens (jsonwebtoken)
-- Validation: Zod
-- PDF generation: pdfkit
+Live demo
+- If you host a demo, paste the demo URL here (e.g., https://demo.yoursite.org). Otherwise, follow the quick demo steps below to run locally.
 
-Quick start (development)
+Hero — what to show when presenting
+- Dashboard: Remaining Balance, Totals, Quick Actions (mobile & desktop views)
+- Pending Actions: how approvals flow between president/secretary/accountant
+- Create Donation: show donation type and accountant verification → PDF receipt generation
+- Create Member Request: memberType selection, auto-fee calculation, approvals → receipt PDF
 
-1) Clone
+Screenshots (replace with real images)
+- Desktop dashboard: docs/screenshots/dashboard-desktop.png
+- Mobile dashboard: docs/screenshots/dashboard-mobile.png
+- Pending actions: docs/screenshots/pending.png
+- PDF receipt sample: docs/screenshots/receipt.png
 
-```bash
-git clone <repo-url>
-cd ujiyala-foundation
-```
+1) Start the backend (PowerShell)
 
-2) Backend
+Quick demo (what to run on your laptop)
 
-PowerShell (Windows):
+2) Start the backend (PowerShell)
+
 ```powershell
 cd server
 cp .env.example .env
-# Edit .env and set MONGODB_URI, JWT_SECRET, ORIGIN, CLOUDINARY_* if used
-npm install
-npm run dev   # runs with node src/start.js
-```
-
-Unix / macOS:
-```bash
-cd server
-cp .env.example .env
-# edit .env
+# edit .env: set MONGODB_URI, JWT_SECRET, ORIGIN, and optional CLOUDINARY_* values
 npm install
 npm run dev
 ```
 
-Create the first admin (PowerShell example):
-```powershell
-Invoke-RestMethod -Uri http://localhost:4000/api/auth/register-admin -Method POST -ContentType 'application/json' -Body (@{ name='Admin'; email='admin@ujiyala.org'; password='ChangeMe!123' } | ConvertTo-Json)
-```
 
-3) Frontend
+Notes: If register-admin fails with 400, check server logs — the project uses Zod for validation and will print helpful details to the console.
+
+3) Start frontend
+
 ```powershell
 cd ../client
 cp .env.example .env
-# optionally set VITE_API_BASE to http://localhost:4000/api for local dev
 npm install
-npm run dev   # opens at http://localhost:5173
+npm run dev
 ```
 
-Core API endpoints
-- POST /api/auth/register-admin — bootstrap admin accounts (protect this in prod)
-- POST /api/auth/login — login to receive JWT
-- POST /api/members/requests — submit membership request
+How to present this project (3–5 minute walkthrough)
+1. Start on the dashboard and point out the main KPIs: Remaining Balance, Total Donations, Membership Total.
+2. Click Pending Actions — explain the approval flow and who sees what (role-based UX).
+3. Open Create Donation, demonstrate choosing a Donation Type, submit, then switch to the accountant account to Verify and show the generated PDF receipt.
+4. Open Member Request, demo memberType auto-fee behavior, then walkthrough approvals and the final receipt.
+
+Talking points for stakeholders
+- Security: JWT auth, server-side role enforcement, and Zod validation.
+- Auditing: Approvals are preserved and included in the generated PDFs (receipts reference approvers).
+- Extensibility: New categories, export formats, and integrations can be added without global refactors.
+
+Optional extras to make the showcase shine
+- Add real screenshots to `docs/screenshots/` and link them above.
+- Add a short demo video (30–60s) and link it in the README or hero area.
+- Add a simple seed script to create demo users and sample data automatically.
+
+Technical quick reference (APIs)
+- POST /api/auth/register-admin — create admin (protect in production)
+- POST /api/auth/login — login and receive JWT
+- GET /api/members — list members (role filtered)
+- POST /api/members/requests — create membership request
 - POST /api/members/requests/:id/approve — president/secretary approve
-- POST /api/members/requests/:id/confirm-payment — accountant confirms and creates a member
-- GET /api/donations/pending — pending donations (accountant)
-- POST /api/donations/:id/verify — accountant verifies donation and generates receipt
+- POST /api/members/requests/:id/confirm-payment — accountant confirms and creates member
+- GET /api/donations/pending — list pending donations (accountant)
+- POST /api/donations/:id/verify — accountant verifies donation
 
-Operational notes
-- Always set a strong JWT_SECRET in production.
-- Set ORIGIN in the server `.env` to your frontend origin to restrict CORS.
-- Use a durable object store (S3 or Cloudinary) for uploads in production.
-- Protect `register-admin` once bootstrapped — or only run it locally to create initial users.
-- The server includes console.debug logs for important flows; replace with a structured logger for production.
+Show checklist (pre-demo)
+- [ ] Ensure backend is running and connected to MongoDB
+- [ ] Create at least three demo users with roles: president, secretary, accountant
+- [ ] Seed 4–6 sample donations and 2 member requests
+- [ ] Confirm PDF generation works locally
 
-Privacy and safety
-- Sensitive data and unapproved requests are filtered server-side so only the intended roles can retrieve them.
-- Endpoints enforce role-based access; client-side checks are for convenience and UX only.
+License & credits
+- This project is maintained for Ujiyala Foundation. Add a LICENSE file if you want to open-source or apply a specific license.
 
-Extending the app
-- Want new donation categories, export formats, or integration with accounting software? The codebase is modular and welcomes extensions. Add new routes under `server/src/routes/` and services under `server/src/services/`.
-
-Contributing
-- PRs and issues welcome. Include clear reproduction steps and tests where possible.
-
-License
-- This repository is maintained for Ujiyala Foundation. Add a LICENSE file as appropriate for your use.
-
-Contact & credits
-- Built with care to help NGOs operate transparently and efficiently.
+Contact
+- Questions or collaboration: reach out to the maintainers listed in the repo.
 
 ---
 
