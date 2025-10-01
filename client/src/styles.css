@@ -1,0 +1,66 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Yatra";
+  src: url("../assets/YatraOne-Regular.ttf");
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+body {
+  @apply bg-slate-50 text-slate-900;
+}
+.card {
+  @apply bg-white rounded-2xl shadow p-4;
+}
+.btn {
+  @apply inline-flex items-center justify-center rounded-xl px-4 py-2 font-medium bg-sky-600 text-white hover:bg-sky-700 active:bg-sky-800 disabled:opacity-60;
+}
+.input {
+  @apply w-full rounded-xl border border-slate-300 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500;
+}
+.label {
+  @apply text-sm font-medium text-slate-700;
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.animate-slide-up {
+  animation: slide-up 0.3s ease-out;
+}
+
+.foundation-firstname {
+  font-family: "Yatra", "Noto Sans Gujarati", sans-serif;
+  color: #00812e;
+  font-size: 1.5rem;
+}
+.foundation-lastname {
+  font-family: "Yatra", "Noto Sans Gujarati", sans-serif;
+  color: #f25b2a;
+  font-size: 1.5rem;
+}
+.app-tag {
+  font-family: "Yatra", "Courier New", Courier, monospace;
+}
+.absolute-image {
+  height: 80px;
+  aspect-ratio: 1/1;
+  background: red;
+  position: absolute;
+  right: 0;
+  margin-right: 50px;
+  border-radius: 15px;
+  background-size: contain;
+}
