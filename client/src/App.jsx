@@ -14,7 +14,7 @@ function Nav() {
     <div className="sticky top-0 z-10 bg-white border-b">
       <div className="max-w-4xl mx-auto flex items-center justify-between p-3">
         <img
-          src="../assets/ujiyala logo.png"
+          src="../assets/ujiyala_logo.png"
           alt="Ujiyala Foundation"
           className="w-20 h-20"
         />

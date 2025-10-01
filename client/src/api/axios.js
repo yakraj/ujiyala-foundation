@@ -4,7 +4,7 @@ import Axios from "axios";
 // relative `/api` path (so requests go to the deployed serverless functions).
 // In development fall back to the local server URL.
 const baseURL =
-  import.meta.env.VITE_API_BASE ||
+  import.meta.env.VITE_API_BASE ||  
   (import.meta.env.PROD ? "/api" : "http://localhost:4000/api");
 
 const api = Axios.create({ baseURL });
