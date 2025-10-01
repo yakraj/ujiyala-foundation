@@ -48,3 +48,4 @@ const start = async () => {
 
 start();
 export default app;
+export const handler = serverless(app);
