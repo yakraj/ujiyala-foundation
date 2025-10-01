@@ -1,6 +1,19 @@
 {
-  "rewrites": [
-    { "source": "/api/:match*", "destination": "/server/api/index.js" },
-    { "source": "/:match*", "destination": "/client/dist/:match*" }
+  "version": 2,
+  "builds": [
+    {
+      "src": "client/package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "dist" }
+    },
+    {
+      "src": "server/api/**/*.js",
+      "use": "@vercel/node"
+    }
+  ],
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/server/api/$1" },
+    { "src": "/(.*)", "dest": "/client/$1" }
   ]
 }
+*** End Patch

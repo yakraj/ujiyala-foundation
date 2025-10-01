@@ -2,7 +2,8 @@
   "name": "ujiyala-foundation-root",
   "private": true,
   "scripts": {
-    "start": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\""
+    "start": "concurrently \"npm run dev --prefix client\" \"npm run dev --prefix server\"",
+    "vercel-build": "npm --prefix client run build && npm --prefix server run vercel-build"
   },
   "devDependencies": {
     "concurrently": "^8.0.0"

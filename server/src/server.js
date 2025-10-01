@@ -39,15 +39,10 @@ app.use('/api/stats', statsRoutes);
 app.use(notFound);
 app.use(errorHandler);
 
-const start = async () => {
-  await connectDB();
-  app.listen(ENV.PORT, () => {
-    logger.info(`Server running on port ${ENV.PORT}`);
-  });
-};
-
-start();
-//export default app;
+// Do NOT start the server here. Export the app so serverless platforms (like
+// Vercel) can import it. For local development, use src/start.js which will
+// connect to DB and start listening.
+export default app;
 //export const handler = serverless(app);
 //this is for vercel
-module.exports = app;
+// module.exports = app;

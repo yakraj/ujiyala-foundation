@@ -4,8 +4,9 @@
   "main": "src/server.js",
   "type": "module",
   "scripts": {
-    "dev": "node src/server.js",
-    "start": "NODE_ENV=production node src/server.js"
+    "dev": "node src/start.js",
+    "start": "NODE_ENV=production node src/start.js",
+    "vercel-build": "echo \"server build: nothing to build\""
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
