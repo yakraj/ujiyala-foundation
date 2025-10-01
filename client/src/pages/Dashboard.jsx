@@ -331,7 +331,7 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                           </p>
                         )}
                         <p className="text-sm text-gray-600">
-                          <span className="font-medium">Donation Fee:</span> ₹
+                          <span className="font-medium">Donation Amount:</span> ₹
                           {item.amount?.toLocaleString() || 0}
                         </p>
                       </div>
@@ -375,7 +375,7 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
 
                     {/* Expense Details */}
                     {type === "expenses" && (
-                      <div className="mt-2 space-y-1">
+                      <div className="mt-2 space-y-1" style ={{ position: "relative" }}>
                         <div
                           className="absolute-image"
                           style={{

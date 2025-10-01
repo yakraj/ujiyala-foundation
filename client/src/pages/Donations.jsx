@@ -3,7 +3,8 @@ import api from '../api/axios'
 
 export default function Donations() {
   const [list, setList] = useState([])
-  const [form, setForm] = useState({ donorName:'', email:'', phone:'', amount:'', method:'cash', date:new Date().toISOString().slice(0,10), note:'' })
+  // donationType added to categorize donations as per NGO requirements
+  const [form, setForm] = useState({ donorName:'', phone:'', amount:'', donationType:'general', method:'cash', date:new Date().toISOString().slice(0,10), note:'' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
@@ -19,9 +20,9 @@ export default function Donations() {
     e.preventDefault()
     setLoading(true); setError('')
     try {
-      const payload = { ...form, amount: Number(form.amount || 0) }
+  const payload = { ...form, amount: Number(form.amount || 0) }
       const { data } = await api.post('/donations', payload)
-      if (data.ok) { setForm({ donorName:'', email:'', phone:'', amount:'', method:'cash', date:new Date().toISOString().slice(0,10), note:'' }); load() }
+  if (data.ok) { setForm({ donorName:'', phone:'', amount:'', donationType:'general', method:'cash', date:new Date().toISOString().slice(0,10), note:'' }); load() }
     } catch (e) { setError(e.response?.data?.message || e.message) }
     finally { setLoading(false) }
   }
@@ -33,8 +34,18 @@ export default function Donations() {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div><label className="label">Donor Name</label><input className="input" value={form.donorName} onChange={e=>setForm({...form, donorName:e.target.value})} /></div>
           <div><label className="label">Amount</label><input type="number" className="input" value={form.amount} onChange={e=>setForm({...form, amount:e.target.value})} /></div>
-          <div><label className="label">Email</label><input className="input" value={form.email} onChange={e=>setForm({...form, email:e.target.value})} /></div>
           <div><label className="label">Phone</label><input className="input" value={form.phone} onChange={e=>setForm({...form, phone:e.target.value})} /></div>
+          <div>
+            <label className="label">Donation Type</label>
+            <select className="input" value={form.donationType} onChange={e=>setForm({...form, donationType:e.target.value})}>
+              <option value="general">General</option>
+              <option value="education">Education</option>
+              <option value="health">Health</option>
+              <option value="relief">Relief</option>
+              <option value="infrastructure">Infrastructure</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
           <div><label className="label">Method</label>
             <select className="input" value={form.method} onChange={e=>setForm({...form, method:e.target.value})}>
               <option>cash</option><option>upi</option><option>bank</option><option>card</option><option>other</option>
@@ -52,7 +63,7 @@ export default function Donations() {
           <div key={d._id} className="card flex items-start justify-between gap-3">
             <div>
               <div className="font-medium">{d.donorName} • ₹{d.amount}</div>
-              <div className="text-sm text-slate-500">{new Date(d.date).toLocaleDateString()} • {d.method}</div>
+              <div className="text-sm text-slate-500">{new Date(d.date).toLocaleDateString()} • {d.method} • {d.donationType || d.type || 'general'}</div>
               {d.note && <div className="text-sm mt-1">{d.note}</div>}
             </div>
             {d.receiptPdfPath && <a className="text-sky-600 text-sm underline" href={d.receiptPdfPath} target="_blank">Receipt PDF</a>}

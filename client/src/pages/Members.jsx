@@ -5,10 +5,12 @@ export default function Members() {
   const [list, setList] = useState([]);
   const [form, setForm] = useState({
     name: "",
-    email: "",
+    // memberType added to distinguish Honorary vs General members
+    memberType: "general",
     phone: "",
     address: "",
-    membershipFee: "",
+    // set default fee according to member type: general=1000, honorary=2000
+    membershipFee: 1000,
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -38,7 +40,7 @@ export default function Members() {
       if (data.ok) {
         setForm({
           name: "",
-          email: "",
+          memberType: "general",
           phone: "",
           address: "",
           membershipFee: "",
@@ -66,14 +68,6 @@ export default function Members() {
             />
           </div>
           <div>
-            <label className="label">Email</label>
-            <input
-              className="input"
-              value={form.email}
-              onChange={(e) => setForm({ ...form, email: e.target.value })}
-            />
-          </div>
-          <div>
             <label className="label">Phone</label>
             <input
               className="input"
@@ -82,14 +76,27 @@ export default function Members() {
             />
           </div>
           <div>
+            <label className="label">Member Type</label>
+            <select
+              className="input"
+              value={form.memberType}
+              onChange={(e) => {
+                const type = e.target.value
+                const fee = type === 'honorary' ? 2000 : 1000
+                setForm({ ...form, memberType: type, membershipFee: fee })
+              }}
+            >
+              <option value="honorary">Honorary Member</option>
+              <option value="general">General Member</option>
+            </select>
+          </div>
+          <div>
             <label className="label">Membership Fee</label>
             <input
               type="number"
               className="input"
               value={form.membershipFee}
-              onChange={(e) =>
-                setForm({ ...form, membershipFee: e.target.value })
-              }
+              readOnly
             />
           </div>
           <div className="sm:col-span-2">
@@ -114,10 +121,8 @@ export default function Members() {
             className="card flex items-start justify-between gap-3"
           >
             <div>
-              <div className="font-medium">{m.name}</div>
-              <div className="text-sm text-slate-500">
-                {m.email} • {m.phone}
-              </div>
+              <div className="font-medium">{m.name} {m.memberType === 'honorary' ? <span className="text-sm font-normal text-slate-500">(Honorary)</span> : null}</div>
+              <div className="text-sm text-slate-500">{m.phone}</div>
               <div className="text-sm">Membership Fee: ₹{m.membershipFee}</div>
             </div>
             {m.receiptPdfPath && (
