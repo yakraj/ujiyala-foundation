@@ -718,6 +718,23 @@ export default function Dashboard() {
           <div className="card bg-gray-50">
             <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+                            {/* Pending receipts - visible to accountant, president and secretary (approve or verify based on role) */}
+              {['accountant','president','secretary'].includes(localStorage.getItem('role')) && (
+                <button onClick={()=>window.location.href='/pending-actions'} className="p-4 bg-white rounded-xl border border-gray-200 hover:border-yellow-300 hover:bg-yellow-50 transition-all duration-200 text-left">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                      <svg className="w-5 h-5 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
+                      </svg>
+                    </div>
+                    <div>
+                      <div className="font-medium text-gray-900">Pending Actions</div>
+                      <div className="text-sm text-gray-500">View all pending donations & requests</div>
+                    </div>
+                  </div>
+                </button>
+              )}
               <button
                 onClick={() => fetchModalData("donations")}
                 className="p-4 bg-white rounded-xl border border-gray-200 hover:border-green-300 hover:bg-green-50 transition-all duration-200 text-left"
@@ -778,22 +795,7 @@ export default function Dashboard() {
                 </div>
               </button>
 
-              {/* Pending receipts - visible to accountant, president and secretary (approve or verify based on role) */}
-              {['accountant','president','secretary'].includes(localStorage.getItem('role')) && (
-                <button onClick={()=>window.location.href='/pending-actions'} className="p-4 bg-white rounded-xl border border-gray-200 hover:border-yellow-300 hover:bg-yellow-50 transition-all duration-200 text-left">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-900">Pending Actions</div>
-                      <div className="text-sm text-gray-500">View all pending donations & requests</div>
-                    </div>
-                  </div>
-                </button>
-              )}
+
 
               <button
                 onClick={() => fetchModalData("expenses")}

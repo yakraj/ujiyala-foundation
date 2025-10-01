@@ -29,7 +29,7 @@ function Nav() {
           <p className="app-tag">Account and finance app</p>
         </div>
         <div className="flex items-center gap-4 text-sm">
-          {role && <div className="text-sm text-slate-600">Role: <span className="font-medium">{role}</span></div>}
+          {/* {role && <div className="text-sm text-slate-600">Role: <span className="font-medium">{role}</span></div>} */}
           {token ? (
             <button
               className="btn"
