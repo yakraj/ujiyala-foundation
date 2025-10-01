@@ -47,4 +47,7 @@ const start = async () => {
 };
 
 start();
-export default app;
+//export default app;
+//export const handler = serverless(app);
+//this is for vercel
+module.exports = app;
