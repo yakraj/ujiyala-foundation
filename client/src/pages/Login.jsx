@@ -3,8 +3,8 @@ import api from '../api/axios'
 import { useNavigate } from 'react-router-dom'
 
 export default function Login() {
-  const [email, setEmail] = useState('admin@ujiyala.org')
-  const [password, setPassword] = useState('ChangeMe!123')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const navigate = useNavigate()
