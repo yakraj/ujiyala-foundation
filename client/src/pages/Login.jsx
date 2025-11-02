@@ -26,7 +26,7 @@ export default function Login() {
 
   return (
     <div className="max-w-sm mx-auto mt-10 card">
-      <h1 className="text-xl font-semibold mb-4">Admin Login</h1>
+      <h1 className="text-xl font-semibold mb-4">Management Team</h1>
       <form onSubmit={onSubmit} className="space-y-3">
         <div>
           <label className="label">Email</label>
