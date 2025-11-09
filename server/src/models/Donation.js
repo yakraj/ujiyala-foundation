@@ -16,6 +16,6 @@ const donationSchema = new mongoose.Schema({
   method: { type: String, enum: ['cash','upi','bank','card','other'], default: 'cash' },
   date: { type: Date, default: Date.now },
   note: { type: String },
-  receiptPdfPath: { type: String }
+  // receiptPdfPath removed (PDF receipts disabled)
 }, { timestamps: true });
 export default mongoose.model('Donation', donationSchema);

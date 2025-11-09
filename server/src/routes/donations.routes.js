@@ -3,7 +3,6 @@ import { z } from 'zod';
 import { validate } from '../middleware/validate.js';
 import { requireAuth } from '../middleware/auth.js';
 import Donation from '../models/Donation.js';
-import { generateReceiptPDF } from '../services/pdf.js';
 
 const router = express.Router();
 
@@ -70,8 +69,6 @@ router.post('/verify-bulk', requireAuth, async (req, res, next) => {
       donation.paymentVerified = true;
       donation.verifiedBy = req.user.sub;
       donation.receivedBy = req.user.sub;
-      const pdfPath = await generateReceiptPDF('donation', donation.toObject());
-      donation.receiptPdfPath = pdfPath;
       await donation.save();
       results.push(donation.toObject());
     }
@@ -92,8 +89,6 @@ router.post('/:id/verify', requireAuth, async (req, res, next) => {
   donation.paymentVerified = true;
   donation.verifiedBy = req.user.sub;
   donation.receivedBy = req.user.sub;
-  const pdfPath = await generateReceiptPDF('donation', donation.toObject());
-  donation.receiptPdfPath = pdfPath;
     await donation.save();
     res.json({ ok: true, donation });
   } catch (e) { next(e); }

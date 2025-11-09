@@ -4,7 +4,6 @@ import { validate } from '../middleware/validate.js';
 import { requireAuth } from '../middleware/auth.js';
 import Member from '../models/Member.js';
 import MemberRequest from '../models/MemberRequest.js';
-import { generateReceiptPDF } from '../services/pdf.js';
 
 const router = express.Router();
 
@@ -28,11 +27,8 @@ router.post('/', requireAuth, validate(createSchema), async (req, res, next) => 
     if (req.user?.role === 'president') payload.approvedBy.president = true;
     if (req.user?.role === 'secretary') payload.approvedBy.secretary = true;
 
-    const member = await Member.create(payload);
-    const pdfPath = await generateReceiptPDF('member', member.toObject());
-    member.receiptPdfPath = pdfPath;
-    await member.save();
-    res.json({ ok: true, member });
+  const member = await Member.create(payload);
+  res.json({ ok: true, member });
   } catch (e) { next(e); }
 });
 
@@ -189,11 +185,9 @@ router.post('/requests/confirm-bulk', requireAuth, async (req, res, next) => {
       if (!mr) continue;
       mr.paidConfirmedByAccountant = true;
       await mr.save();
-      if (mr.status === 'approved' && mr.paidConfirmedByAccountant) {
+        if (mr.status === 'approved' && mr.paidConfirmedByAccountant) {
         // Carry over approvals to the created Member so accountant visibility rules work
         const member = await Member.create({ name: mr.name, phone: mr.phone, address: mr.address, membershipFee: mr.membershipFee, approvedBy: mr.approvals || { president:false, secretary:false }, createdViaRequest: true, addedBy: mr.createdBy });
-        const pdfPath = await generateReceiptPDF('member', member.toObject());
-        member.receiptPdfPath = pdfPath;
         await member.save();
         mr.status = 'approved';
         await mr.save();
@@ -219,8 +213,6 @@ router.post('/requests/:id/confirm-payment', requireAuth, async (req, res, next)
     if (mr.status === 'approved' && mr.paidConfirmedByAccountant) {
       // Carry over approvals to the created Member so accountant visibility rules work
       const member = await Member.create({ name: mr.name, phone: mr.phone, address: mr.address, membershipFee: mr.membershipFee, approvedBy: mr.approvals || { president:false, secretary:false }, createdViaRequest: true, addedBy: mr.createdBy });
-      const pdfPath = await generateReceiptPDF('member', member.toObject());
-      member.receiptPdfPath = pdfPath;
       await member.save();
       // update request status
       mr.status = 'approved';

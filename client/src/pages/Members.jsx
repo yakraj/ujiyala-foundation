@@ -145,7 +145,7 @@ export default function Members() {
         </div>
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <button className="btn w-full" disabled={loading}>
-          {loading ? "Saving..." : (role === 'president' || role === 'secretary' ? 'Add Member & Generate Receipt' : 'Request Membership')}
+          {loading ? "Saving..." : (role === 'president' || role === 'secretary' ? 'Add Member' : 'Request Membership')}
         </button>
       </form>
       <div className="grid gap-3">
@@ -185,7 +185,7 @@ export default function Members() {
                   {processingRequests.has(m._id) ? 'Processing...' : 'Confirm Payment'}
                 </button>
               )}
-              {m.receiptPdfPath && <a className="text-sky-600 text-sm underline" href={m.receiptPdfPath} target="_blank">Receipt PDF</a>}
+              {/* Receipt PDFs disabled */}
             </div>
           </div>
         ))}

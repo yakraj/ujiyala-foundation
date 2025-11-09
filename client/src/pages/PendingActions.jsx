@@ -97,7 +97,7 @@ export default function PendingActions(){
                 <div className="flex gap-2 items-center">
                   <input type="checkbox" checked={selectedDonations.has(d._id)} onChange={()=>toggleDonation(d._id)} />
                   <button className="btn" onClick={()=>verify(d._id)}>Verify</button>
-                  {d.receiptPdfPath && <a className="text-sky-600 text-sm underline" href={d.receiptPdfPath} target="_blank">Receipt</a>}
+                  {/* Receipt PDFs disabled */}
                 </div>
               </div>
             ))}

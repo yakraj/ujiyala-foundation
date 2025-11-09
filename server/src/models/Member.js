@@ -6,7 +6,7 @@ const memberSchema = new mongoose.Schema({
   address: { type: String },
   joinedOn: { type: Date, default: Date.now },
   membershipFee: { type: Number, default: 0 },
-  receiptPdfPath: { type: String },
+  // receiptPdfPath removed (PDF receipts disabled)
   // who added the member (user id)
   addedBy: { type: String },
   // approvals when created via request or direct add

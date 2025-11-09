@@ -56,7 +56,7 @@ export default function Donations() {
           <div className="sm:col-span-2"><label className="label">Note</label><input className="input" value={form.note} onChange={e=>setForm({...form, note:e.target.value})} /></div>
         </div>
         {error && <div className="text-red-600 text-sm">{error}</div>}
-        <button className="btn w-full" disabled={loading}>{loading ? 'Saving...' : 'Add Donation & Generate Receipt'}</button>
+  <button className="btn w-full" disabled={loading}>{loading ? 'Saving...' : 'Add Donation'}</button>
       </form>
 
       <div className="grid gap-3">
@@ -71,7 +71,6 @@ export default function Donations() {
               {role === 'accountant' && !d.verified && (
                 <button className="btn" onClick={async()=>{ await api.post(`/donations/${d._id}/verify`); load(); }}>Verify</button>
               )}
-              {d.receiptPdfPath && <a className="text-sky-600 text-sm underline" href={d.receiptPdfPath} target="_blank">Receipt PDF</a>}
             </div>
           </div>
         ))}
