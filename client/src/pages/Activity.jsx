@@ -55,7 +55,7 @@ export default function Activity() {
               id: `expense-${expense._id}`,
               type: "expense",
               title: "Expense Recorded",
-              description: expense.description,
+              description: expense.note,
               date: new Date(expense.createdAt),
               amount: expense.amount,
               color: "red",

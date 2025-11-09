@@ -397,7 +397,7 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                         ></div>
                         <p className="text-sm text-gray-600">
                           <span className="font-medium">Description:</span>{" "}
-                          {item.description}
+                          {item.note}
                         </p>
                         <p className="text-sm text-gray-600">
                           <span className="font-medium">Category:</span>{" "}

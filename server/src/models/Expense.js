@@ -5,7 +5,7 @@ const expenseSchema = new mongoose.Schema(
     by: { type: String, required: true },
     amount: { type: Number, required: true },
     category: { type: String, default: "general" },
-    note: { type: String },
+    Description: { type: String },
     receiptImagePath: { type: String },
     receiptImagePublicId: { type: String },
   },
