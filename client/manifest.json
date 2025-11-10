@@ -1,0 +1,48 @@
+{
+"name": "Ujiyala Foundation",
+"short_name": "Ujiyala",
+"start_url": "https://wwl38t1g0ci6tp4hk9jv7by2f5sx8da7zq9b5vn0.ujiyalafoundation.org/",
+"display": "standalone",
+"description": "A NGO Application",
+"lang": "en-US",
+"dir": "auto",
+"theme_color": "#f25b2a",
+"background_color": "#fff",
+"orientation": "portrait",
+"icons": [
+    {
+        "src": "../assets/ujiyala logo-min.png",
+        "sizes": "512x512",
+        "type": "image/png",
+        "purpose": "maskable"
+    },
+    {
+        "src": "../assets/ujiyala_120.png",
+        "sizes": "192x192",
+        "type": "image/png",
+        "purpose": "any"
+    }
+],
+"screenshots": [
+    {
+        "src": "https://www.pwabuilder.com/assets/screenshots/screen1.png",
+        "sizes": "2880x1800",
+        "type": "image/png",
+        "description": "A screenshot of the home page"
+    }
+],
+"related_applications": [
+    {
+        "platform":"android",
+        "url": "https://wwl38t1g0ci6tp4hk9jv7by2f5sx8da7zq9b5vn0.ujiyalafoundation.org/"
+    }
+],
+"prefer_related_applications": false,
+"shortcuts": [
+    {
+        "name":"Ujiyala Foundation",
+        "url":"https://wwl38t1g0ci6tp4hk9jv7by2f5sx8da7zq9b5vn0.ujiyalafoundation.org/",
+        "description":"A NGO, Heart of sinnar"
+    }
+]
+}
