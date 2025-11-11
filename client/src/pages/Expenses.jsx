@@ -51,10 +51,20 @@ export default function Expenses() {
     setLoading(true); setError('')
     try {
       const fd = new FormData()
-      for (const k of Object.keys(form)) fd.append(k, k==='amount' ? String(Number(form[k])) : form[k])
+      // Append all form fields
+      fd.append('date', form.date)
+      fd.append('by', form.by)
+      fd.append('amount', String(Number(form.amount)))
+      fd.append('category', form.category)
+      fd.append('note', form.note) // Description field
       if (file) fd.append('receipt', file)
+      
       const { data } = await api.post('/expenses', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-      if (data.ok) { setForm({ date: new Date().toISOString().slice(0,10), by: '', amount: '', category: '', note: '' }); setFile(null); load() }
+      if (data.ok) { 
+        setForm({ date: new Date().toISOString().slice(0,10), by: '', amount: '', category: '', note: '' }); 
+        setFile(null); 
+        load() 
+      }
     } catch (e) { setError(e.response?.data?.message || e.message) }
     finally { setLoading(false) }
   }

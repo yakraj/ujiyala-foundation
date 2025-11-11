@@ -35,6 +35,12 @@ router.post(
         date: new Date(parsed.date),
       };
 
+      // For compatibility, copy 'note' into lowercase 'description' and legacy 'Description'
+      if (parsed.note) {
+        body.description = parsed.note;
+        body.Description = parsed.note;
+      }
+
       // Store Cloudinary URL if image was uploaded
       if (req.file && req.file.cloudinaryUrl) {
         body.receiptImagePath = req.file.cloudinaryUrl;

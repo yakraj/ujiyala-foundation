@@ -39,7 +39,6 @@ export default function Login() {
         {error && <p className="text-red-600 text-sm">{error}</p>}
         <button disabled={loading} className="btn w-full">{loading ? 'Please wait...' : 'Login'}</button>
       </form>
-      <p className="text-xs text-slate-500 mt-3">Use cURL in README to create the first admin.</p>
     </div>
   )
 }

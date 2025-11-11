@@ -1,6 +1,31 @@
 import { useEffect, useState } from "react";
 import api from "../api/axios";
 
+function ImageViewer({ imagePath, onClose }) {
+  if (!imagePath) return null;
+  
+  return (
+    <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center" onClick={onClose}>
+      <div className="relative max-w-[90vw] max-h-[90vh]">
+        <button
+          onClick={onClose}
+          className="absolute -top-4 -right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+        <img 
+          src={imagePath} 
+          alt="Receipt" 
+          className="max-w-full max-h-[90vh] object-contain rounded-lg"
+          onClick={e => e.stopPropagation()} 
+        />
+      </div>
+    </div>
+  );
+}
+
 function Stat({
   label,
   value,
@@ -42,6 +67,7 @@ function Stat({
 
 function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const downloadMemberPDF = async (member) => {
     try {
@@ -284,7 +310,7 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
 
           <div className="space-y-3">
             {filteredData?.map((item, index) => (
-              <div key={item._id || index} className="card">
+              <div key={item._id || index} style = {{backgroundColor:!item.category ? item.paymentVerified ? "#00ff8926" : "#ff000026": 'transparent'}} className="card">
                 <div className="flex items-start space-x-3">
                   {getItemIcon(type)}
                   <div className="flex-1 min-w-0">
@@ -388,17 +414,16 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
 
                     {/* Expense Details */}
                     {type === "expenses" && (
-                      <div className="mt-2 space-y-1" style ={{ position: "relative" }}>
-                        <div
-                          className="absolute-image"
-                          style={{
-                            backgroundImage: `url(${item.receiptImagePath})`,
-                          }}
-                        ></div>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Description:</span>{" "}
-                          {item.note}
-                        </p>
+                      <div className="mt-2 space-y-1 flex items-start gap-4">
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">Description:</span>{" "}
+                            {item.note}
+                          </p>
+                          <p className="text-sm text-gray-600">
+                            <span className="font-medium">By:</span>{" "}
+                            {item.by}
+                          </p>
                         <p className="text-sm text-gray-600">
                           <span className="font-medium">Category:</span>{" "}
                           {item.category || "General expense"}
@@ -433,12 +458,29 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                             {item.notes}
                           </p>
                         )}
-                        <p className="text-sm text-gray-600">
+                        <p className="text-sm text-red-600">
                           <span className="font-medium">Expense Amount:</span> ₹
                           {item.amount?.toLocaleString() || 0}
                         </p>
+                        </div>
+                        {item.receiptImagePath && (
+                          <div 
+                            className="w-20 h-20 flex-shrink-0 rounded-full shadow-mg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer border-2 border-white overflow-hidden"
+                            onClick={() => setSelectedImage(item.receiptImagePath)}
+                            style={{
+                              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                            }}
+                          >
+                            <img 
+                              src={item.receiptImagePath} 
+                              alt="Receipt thumbnail" 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
                       </div>
                     )}
+                    {selectedImage && <ImageViewer imagePath={selectedImage} onClose={() => setSelectedImage(null)} />}
 
                     <div className="flex items-center justify-between mt-3">
                       {/* <div

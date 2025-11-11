@@ -184,7 +184,7 @@ export default function Activity() {
                     {formatDate(activity.date)}
                   </span>
                 </div>
-                <p className="text-sm text-gray-600 mt-1">
+                <p  className="text-sm text-gray-600 mt-1">
                   {activity.description}
                 </p>
                 {activity.amount && (
