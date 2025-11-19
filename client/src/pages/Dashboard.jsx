@@ -1,5 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import api from "../api/axios";
+import MemberReceipt from "../components/member.receipt";
+import DonationReceipt from "../components/donation.receipt";
+import MemberCertificate from "../components/certificate";
+import PrintCertificate from "../components/PrintCertificate";
 
 function ImageViewer({ imagePath, onClose }) {
   if (!imagePath) return null;
@@ -68,28 +72,224 @@ function Stat({
 function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
+  const printRef = useRef(null);
 
-  const downloadMemberPDF = async (member) => {
+  const downloadMemberPDF = (member) => {
     try {
-      const response = await api.get(`/members/${member._id}/pdf`, {
-        responseType: "blob",
-      });
+      // Create a hidden iframe for printing
+      const iframe = document.createElement("iframe");
+      iframe.style.position = "absolute";
+      iframe.style.left = "-9999px";
+      iframe.style.width = "8.5in";
+      iframe.style.height = "11in";
+      document.body.appendChild(iframe);
 
-      // Create blob link to download
-      const url = window.URL.createObjectURL(new Blob([response.data]));
-      const link = document.createElement("a");
-      link.href = url;
-      link.setAttribute(
-        "download",
-        `membership-certificate-${member.name}-${member._id}.pdf`
-      );
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+
+      // Build the certificate HTML
+      const certificateHTML = `
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Membership Certificate</title>
+            <style>
+              * { margin: 0; padding: 0; box-sizing: border-box; }
+              body {
+                font-family: Arial, sans-serif;
+                background: white;
+                color: #333;
+              }
+              .certificate-container {
+                padding: 40px;
+                max-width: 900px;
+                margin: 0 auto;
+                background: white;
+                min-height: 100vh;
+              }
+              .header-text {
+                text-align: center;
+                font-size: 12px;
+                color: #666;
+                margin-bottom: 20px;
+                font-weight: bold;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+              }
+              .top-section {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 30px;
+                border-bottom: 2px solid #ff520d;
+                padding-bottom: 20px;
+              }
+              .organization-details {
+                text-align: center;
+                flex: 1;
+              }
+              .org-name {
+                font-size: 24px;
+                font-weight: bold;
+                color: #1a5c7a;
+                margin-bottom: 5px;
+              }
+              .organization-details p {
+                font-size: 12px;
+                margin: 3px 0;
+                color: #666;
+              }
+              .accent-color {
+                color: #ff520d;
+              }
+              .main-content {
+                text-align: center;
+                margin: 40px 0;
+              }
+              .main-content h1 {
+                font-size: 32px;
+                color: #1a5c7a;
+                margin-bottom: 20px;
+                font-weight: bold;
+              }
+              .main-content p {
+                font-size: 16px;
+                line-height: 1.6;
+                margin: 15px 0;
+                color: #333;
+              }
+              .member-name {
+                font-size: 28px;
+                color: #ff520d;
+                font-weight: bold;
+                margin: 20px 0;
+                text-decoration: underline;
+              }
+              .details-section {
+                margin: 40px 0;
+                border: 2px solid #1a5c7a;
+                padding: 20px;
+                background: #f9f9f9;
+              }
+              .detail-item {
+                display: flex;
+                justify-content: space-between;
+                padding: 10px 0;
+                border-bottom: 1px solid #ddd;
+                font-size: 14px;
+              }
+              .detail-item:last-child {
+                border-bottom: none;
+              }
+              .detail-label {
+                font-weight: bold;
+                color: #333;
+              }
+              .detail-value {
+                color: #666;
+              }
+              .footer-text {
+                text-align: center;
+                font-size: 12px;
+                color: #666;
+                margin-top: 40px;
+                line-height: 1.6;
+              }
+              .signature-section {
+                display: flex;
+                justify-content: space-around;
+                margin-top: 40px;
+              }
+              .signature {
+                text-align: center;
+                width: 150px;
+              }
+              .signature-line {
+                border-top: 1px solid #333;
+                margin-top: 30px;
+                padding-top: 5px;
+              }
+              @media print {
+                body { margin: 0; padding: 0; }
+                .certificate-container { padding: 20px; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="certificate-container">
+              <p class="header-text">UJIYALA FOUNDATION | Membership Confirmation Receipt</p>
+              
+              <div class="top-section">
+                <div class="organization-details">
+                  <p class="org-name">UJIYALA FOUNDATION</p>
+                  <p>Lonarwadi, Sinnar, Nashik MH</p>
+                  <p class="accent-color"><strong>www.ujiyalafoundation.org</strong></p>
+                  <p>Contact No: +91-9198539853 / 9922555560</p>
+                </div>
+              </div>
+
+              <div class="main-content">
+                <h1>Membership Certificate</h1>
+                <p>This document certifies that</p>
+                <p class="member-name">${member.name || "Member Name"}</p>
+                <p>has officially become a <strong>Permanent Member</strong> of the Ujiyala Foundation</p>
+                <p>effective from <strong>${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</strong></p>
+              </div>
+
+              <div class="details-section">
+                <div class="detail-item">
+                  <span class="detail-label">Membership Number:</span>
+                  <span class="detail-value">${member.membershipNo || "N/A"}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Membership Type:</span>
+                  <span class="detail-value">${member.membershipType || "Permanent"}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Join Date:</span>
+                  <span class="detail-value">${new Date(member.joinDate).toLocaleDateString("en-IN") || new Date().toLocaleDateString("en-IN")}</span>
+                </div>
+                <div class="detail-item">
+                  <span class="detail-label">Valid Until:</span>
+                  <span class="detail-value">${member.expiryDate ? new Date(member.expiryDate).toLocaleDateString("en-IN") : "Lifetime"}</span>
+                </div>
+              </div>
+
+              <div class="footer-text">
+                <p>Thank you for becoming a Member of the Ujiyala Foundation.</p>
+                <p>Your contribution supports our vision of empowering lives, serving communities, and spreading hope.</p>
+                <p style="margin-top: 20px; font-size: 11px; color: #999;">
+                  This is a computer-generated document and requires no physical signature.
+                </p>
+              </div>
+            </div>
+          </body>
+        </html>
+      `;
+
+      iframeDoc.open();
+      iframeDoc.write(certificateHTML);
+      iframeDoc.close();
+
+      // Wait for iframe content to load, then trigger print
+      iframe.onload = () => {
+        setTimeout(() => {
+          iframe.contentWindow.print();
+          // Remove iframe after print dialog closes
+          setTimeout(() => {
+            document.body.removeChild(iframe);
+          }, 500);
+        }, 200);
+      };
+
+      // Trigger onload manually if not called automatically
+      if (iframe.contentDocument && iframe.contentDocument.readyState === "complete") {
+        iframe.onload();
+      }
     } catch (error) {
-      console.error("Error downloading PDF:", error);
-      alert("Failed to download PDF. Please try again.");
+      console.error("Error opening print dialog:", error);
+      alert("Failed to open print dialog. Please try again.");
     }
   };
 
@@ -612,6 +812,9 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
+      {/* <MemberCertificate /> */}
+      <DonationReceipt />
+      {/* <MemberReceipt /> */}
       {/* Header */}
 
       {/* Loading and Error States */}
