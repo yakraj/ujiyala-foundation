@@ -26,22 +26,22 @@ app.set('trust proxy', 1);
 app.use(helmet());
 //app.use(cors({ origin: ENV.ORIGIN, credentials: true }));
 // made some changes on corse
-const allowedOrigins = Array.isArray(ENV.ORIGIN) ? ENV.ORIGIN : [ENV.ORIGIN];
-
-app.use(cors({
-  origin: (origin, callback) => {
-    // allow non-browser tools (no origin) and exact origin matches
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) return callback(null, true);
-    return callback(new Error('CORS: origin not allowed'));
-  },
-  credentials: false, // you said you don't use cookies; keep false
-  methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
-  exposedHeaders: [], // add header names here only if the browser must read custom response headers
-  preflightContinue: false,
-  optionsSuccessStatus: 204
-}));
+//const allowedOrigins = Array.isArray(ENV.ORIGIN) ? ENV.ORIGIN : [ENV.ORIGIN];
+app.use(cors())
+// app.use(cors({
+//   origin: (origin, callback) => {
+//     // allow non-browser tools (no origin) and exact origin matches
+//     if (!origin) return callback(null, true);
+//     if (allowedOrigins.includes(origin)) return callback(null, true);
+//     return callback(new Error('CORS: origin not allowed'));
+//   },
+//   credentials: false, // you said you don't use cookies; keep false
+//   methods: ['GET','HEAD','PUT','PATCH','POST','DELETE','OPTIONS'],
+//   allowedHeaders: ['Content-Type', 'Authorization', 'Accept', 'X-Requested-With'],
+//   exposedHeaders: [], // add header names here only if the browser must read custom response headers
+//   preflightContinue: false,
+//   optionsSuccessStatus: 204
+// }));
 
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
