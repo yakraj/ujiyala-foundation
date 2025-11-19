@@ -1,29 +1,43 @@
 import { useEffect, useState, useRef } from "react";
 import api from "../api/axios";
 import MemberReceipt from "../components/member.receipt";
-import DonationReceipt from "../components/donation.receipt";
+import { downloadComponentAsPDF } from "../components/pdfDownload";
 import MemberCertificate from "../components/certificate";
 import PrintCertificate from "../components/PrintCertificate";
+import DonationReceipt from "../components/donation.receipt";
 
 function ImageViewer({ imagePath, onClose }) {
   if (!imagePath) return null;
-  
+
   return (
-    <div className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 bg-black bg-opacity-75 flex items-center justify-center"
+      onClick={onClose}
+    >
       <div className="relative max-w-[90vw] max-h-[90vh]">
         <button
           onClick={onClose}
           className="absolute -top-4 -right-4 w-8 h-8 bg-white rounded-full flex items-center justify-center shadow-lg hover:bg-gray-100"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          <svg
+            className="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M6 18L18 6M6 6l12 12"
+            />
           </svg>
         </button>
-        <img 
-          src={imagePath} 
-          alt="Receipt" 
+        <img
+          src={imagePath}
+          alt="Receipt"
           className="max-w-full max-h-[90vh] object-contain rounded-lg"
-          onClick={e => e.stopPropagation()} 
+          onClick={(e) => e.stopPropagation()}
         />
       </div>
     </div>
@@ -73,7 +87,9 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
   const printRef = useRef(null);
-
+  const receiptRef = useRef();
+  const [selectedDonation, setSelectedDonation] = useState(null);
+  console.log(selectedDonation);
   const downloadMemberPDF = (member) => {
     try {
       // Create a hidden iframe for printing
@@ -234,25 +250,39 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                 <p>This document certifies that</p>
                 <p class="member-name">${member.name || "Member Name"}</p>
                 <p>has officially become a <strong>Permanent Member</strong> of the Ujiyala Foundation</p>
-                <p>effective from <strong>${new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</strong></p>
+                <p>effective from <strong>${new Date().toLocaleDateString(
+                  "en-IN",
+                  { day: "numeric", month: "long", year: "numeric" }
+                )}</strong></p>
               </div>
 
               <div class="details-section">
                 <div class="detail-item">
                   <span class="detail-label">Membership Number:</span>
-                  <span class="detail-value">${member.membershipNo || "N/A"}</span>
+                  <span class="detail-value">${
+                    member.membershipNo || "N/A"
+                  }</span>
                 </div>
                 <div class="detail-item">
                   <span class="detail-label">Membership Type:</span>
-                  <span class="detail-value">${member.membershipType || "Permanent"}</span>
+                  <span class="detail-value">${
+                    member.membershipType || "Permanent"
+                  }</span>
                 </div>
                 <div class="detail-item">
                   <span class="detail-label">Join Date:</span>
-                  <span class="detail-value">${new Date(member.joinDate).toLocaleDateString("en-IN") || new Date().toLocaleDateString("en-IN")}</span>
+                  <span class="detail-value">${
+                    new Date(member.joinDate).toLocaleDateString("en-IN") ||
+                    new Date().toLocaleDateString("en-IN")
+                  }</span>
                 </div>
                 <div class="detail-item">
                   <span class="detail-label">Valid Until:</span>
-                  <span class="detail-value">${member.expiryDate ? new Date(member.expiryDate).toLocaleDateString("en-IN") : "Lifetime"}</span>
+                  <span class="detail-value">${
+                    member.expiryDate
+                      ? new Date(member.expiryDate).toLocaleDateString("en-IN")
+                      : "Lifetime"
+                  }</span>
                 </div>
               </div>
 
@@ -284,7 +314,10 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
       };
 
       // Trigger onload manually if not called automatically
-      if (iframe.contentDocument && iframe.contentDocument.readyState === "complete") {
+      if (
+        iframe.contentDocument &&
+        iframe.contentDocument.readyState === "complete"
+      ) {
         iframe.onload();
       }
     } catch (error) {
@@ -400,6 +433,12 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
     }
   };
 
+  function handleDownloadPDF() {
+    if (selectedDonation) {
+      downloadComponentAsPDF(receiptRef, `receipt-${selectedDonation._id}.pdf`);
+    }
+  }
+
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
       <div className="bg-white w-full rounded-t-3xl p-6 animate-slide-up max-h-[80vh] overflow-hidden flex flex-col">
@@ -510,7 +549,17 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
 
           <div className="space-y-3">
             {filteredData?.map((item, index) => (
-              <div key={item._id || index} style = {{backgroundColor:!item.category ? item.paymentVerified ? "#00ff8926" : "#ff000026": 'transparent'}} className="card">
+              <div
+                key={item._id || index}
+                style={{
+                  backgroundColor: !item.category
+                    ? item.paymentVerified
+                      ? "#00ff8926"
+                      : "#ff000026"
+                    : "transparent",
+                }}
+                className="card"
+              >
                 <div className="flex items-start space-x-3">
                   {getItemIcon(type)}
                   <div className="flex-1 min-w-0">
@@ -529,51 +578,90 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
 
                     {/* Donation Details */}
                     {type === "donations" && (
-                      <div className="mt-2 space-y-1">
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Donor Name:</span>
-                          {item.donorName || "Anonymous"}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Purpose:</span>
-                          {item.purpose || "General donation"}
-                        </p>
-                        {item.donorEmail && (
+                      <>
+                        <div className="mt-2 space-y-1">
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium">Email:</span>
-                            {item.donorEmail}
+                            <span className="font-medium">Donor Name:</span>
+                            {item.donorName || "Anonymous"}
                           </p>
-                        )}
-                        {item.donorPhone && (
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium">Phone:</span>
-                            {item.donorPhone}
+                            <span className="font-medium">Purpose:</span>
+                            {item.purpose || "General donation"}
                           </p>
-                        )}
-                        {item.paymentMethod && (
+                          {item.donorEmail && (
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">Email:</span>
+                              {item.donorEmail}
+                            </p>
+                          )}
+                          {item.donorPhone && (
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">Phone:</span>
+                              {item.donorPhone}
+                            </p>
+                          )}
+                          {item.paymentMethod && (
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">Payment:</span>
+                              {item.paymentMethod}
+                            </p>
+                          )}
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium">Payment:</span>
-                            {item.paymentMethod}
+                            <span className="font-medium">
+                              Donation Amount:
+                            </span>{" "}
+                            ₹{item.amount?.toLocaleString() || 0}
                           </p>
-                        )}
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Donation Amount:</span> ₹
-                          {item.amount?.toLocaleString() || 0}
-                        </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Payment Verified:</span> {item.paymentVerified ? 'Yes' : 'No'}
-                        </p>
-                        {item.receivedBy && (
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium">Received By:</span> {item.receivedBy}
+                            <span className="font-medium">
+                              Payment Verified:
+                            </span>{" "}
+                            {item.paymentVerified ? "Yes" : "No"}
                           </p>
-                        )}
-                        {item.addedBy && (
-                          <p className="text-sm text-gray-600">
-                            <span className="font-medium">Added By:</span> {item.addedBy}
-                          </p>
-                        )}
-                      </div>
+                          {/* {item.receivedBy && (
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">Received By:</span>{" "}
+                              {item.receivedBy}
+                            </p>
+                          )} */}
+                          {item.addedBy && (
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">Added By:</span>{" "}
+                              {item.addedBy}
+                            </p>
+                          )}
+                        </div>
+                        <button
+                          style={{ boxShadow: "0 0 5px gray" }}
+                          className="flex items-center space-x-1 px-3 py-1 bg-green-100 text-green-600 rounded-lg hover:bg-green-200 transition-colors text-sm mt-2"
+                          onClick={() => {
+                            setSelectedDonation(item);
+                            setTimeout(() => {
+                              if (receiptRef && receiptRef.current) {
+                                downloadComponentAsPDF(
+                                  receiptRef,
+                                  `receipt-${item._id}.pdf`
+                                );
+                              }
+                            }, 100);
+                          }}
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                          </svg>
+                          <span>Download Receipt</span>
+                        </button>
+                      </>
                     )}
 
                     {/* Member Details */}
@@ -621,66 +709,77 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                             {item.note}
                           </p>
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium">By:</span>{" "}
-                            {item.by}
+                            <span className="font-medium">By:</span> {item.by}
                           </p>
-                        <p className="text-sm text-gray-600">
-                          <span className="font-medium">Category:</span>{" "}
-                          {item.category || "General expense"}
-                        </p>
-                        {item.vendor && (
                           <p className="text-sm text-gray-600">
-                            <span className="font-medium">Where:</span>{" "}
-                            {item.vendor}
+                            <span className="font-medium">Category:</span>{" "}
+                            {item.category || "General expense"}
                           </p>
-                        )}
-                        {item.location && (
-                          <p className="text-sm text-gray-600">
-                            <span className="font-medium">Location:</span>{" "}
-                            {item.location}
+                          {item.vendor && (
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">Where:</span>{" "}
+                              {item.vendor}
+                            </p>
+                          )}
+                          {item.location && (
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">Location:</span>{" "}
+                              {item.location}
+                            </p>
+                          )}
+                          {item.paymentMethod && (
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">
+                                Payment Method:
+                              </span>{" "}
+                              {item.paymentMethod}
+                            </p>
+                          )}
+                          {item.receiptNumber && (
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">
+                                Receipt Number:
+                              </span>{" "}
+                              {item.receiptNumber}
+                            </p>
+                          )}
+                          {item.notes && (
+                            <p className="text-sm text-gray-600">
+                              <span className="font-medium">Notes:</span>{" "}
+                              {item.notes}
+                            </p>
+                          )}
+                          <p className="text-sm text-red-600">
+                            <span className="font-medium">Expense Amount:</span>{" "}
+                            ₹{item.amount?.toLocaleString() || 0}
                           </p>
-                        )}
-                        {item.paymentMethod && (
-                          <p className="text-sm text-gray-600">
-                            <span className="font-medium">Payment Method:</span>{" "}
-                            {item.paymentMethod}
-                          </p>
-                        )}
-                        {item.receiptNumber && (
-                          <p className="text-sm text-gray-600">
-                            <span className="font-medium">Receipt Number:</span>{" "}
-                            {item.receiptNumber}
-                          </p>
-                        )}
-                        {item.notes && (
-                          <p className="text-sm text-gray-600">
-                            <span className="font-medium">Notes:</span>{" "}
-                            {item.notes}
-                          </p>
-                        )}
-                        <p className="text-sm text-red-600">
-                          <span className="font-medium">Expense Amount:</span> ₹
-                          {item.amount?.toLocaleString() || 0}
-                        </p>
                         </div>
                         {item.receiptImagePath && (
-                          <div 
+                          <div
                             className="w-20 h-20 flex-shrink-0 rounded-full shadow-mg hover:shadow-xl transform hover:scale-105 transition-all duration-200 cursor-pointer border-2 border-white overflow-hidden"
-                            onClick={() => setSelectedImage(item.receiptImagePath)}
+                            onClick={() =>
+                              setSelectedImage(item.receiptImagePath)
+                            }
                             style={{
-                              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+                              boxShadow:
+                                "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
                             }}
                           >
-                            <img 
-                              src={item.receiptImagePath} 
-                              alt="Receipt thumbnail" 
+                            <img
+                              src={item.receiptImagePath}
+                              alt="Receipt thumbnail"
                               className="w-full h-full object-cover"
                             />
                           </div>
                         )}
                       </div>
                     )}
-                    {selectedImage && <ImageViewer imagePath={selectedImage} onClose={() => setSelectedImage(null)} />}
+                    {selectedImage && (
+                      <ImageViewer
+                        imagePath={selectedImage}
+                        onClose={() => setSelectedImage(null)}
+                      />
+                    )}
 
                     <div className="flex items-center justify-between mt-3">
                       {/* <div
@@ -714,11 +813,22 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                           <span>Download Certificate</span>
                         </button>
                       )}
-                      {type === 'donations' && localStorage.getItem('role') === 'accountant' && !item.paymentVerified && (
-                        <button className="flex items-center space-x-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors text-sm" onClick={async()=>{ await api.post(`/donations/${item._id}/verify`); const { data } = await api.get('/donations/pending'); setModalData(data.donations || []); }}>
-                          <span>Verify Payment</span>
-                        </button>
-                      )}
+                      {type === "donations" &&
+                        localStorage.getItem("role") === "accountant" &&
+                        !item.paymentVerified && (
+                          <button
+                            className="flex items-center space-x-1 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-lg hover:bg-yellow-200 transition-colors text-sm"
+                            onClick={async () => {
+                              await api.post(`/donations/${item._id}/verify`);
+                              const { data } = await api.get(
+                                "/donations/pending"
+                              );
+                              setModalData(data.donations || []);
+                            }}
+                          >
+                            <span>Verify Payment</span>
+                          </button>
+                        )}
                     </div>
                   </div>
                 </div>
@@ -726,6 +836,13 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
             ))}
           </div>
         </div>
+      </div>
+
+      {/* Modal for viewing and downloading receipt */}
+      <div style={{ display: "none" }}>
+        {selectedDonation && (
+          <DonationReceipt ref={receiptRef} donation={selectedDonation} />
+        )}
       </div>
     </div>
   );
@@ -743,7 +860,7 @@ export default function Dashboard() {
   const [modalError, setModalError] = useState("");
   const [modalTitle, setModalTitle] = useState("");
   const [modalType, setModalType] = useState("");
-  
+
   useEffect(() => {
     (async () => {
       try {
@@ -764,13 +881,13 @@ export default function Dashboard() {
 
     try {
       // Handle special case for membersfund endpoint
-  // special endpoints
-  let endpoint = '';
-  if (type === 'membersfund') endpoint = '/membersfund';
-  else if (type === 'pending') endpoint = '/donations/pending';
-  else if (type === 'memberrequests') endpoint = '/members/requests';
-  else endpoint = `/${type}`;
-  const { data } = await api.get(endpoint);
+      // special endpoints
+      let endpoint = "";
+      if (type === "membersfund") endpoint = "/membersfund";
+      else if (type === "pending") endpoint = "/donations/pending";
+      else if (type === "memberrequests") endpoint = "/members/requests";
+      else endpoint = `/${type}`;
+      const { data } = await api.get(endpoint);
 
       if (data.ok) {
         // Handle different response structures
@@ -789,10 +906,10 @@ export default function Dashboard() {
             ? "All Members"
             : type === "membersfund"
             ? "Members Fund"
-            : type === 'pending'
-            ? 'Pending Receipts'
-            : type === 'memberrequests'
-            ? 'Member Requests'
+            : type === "pending"
+            ? "Pending Receipts"
+            : type === "memberrequests"
+            ? "Member Requests"
             : "All Expenses"
         );
         setModalOpen(true);
@@ -963,19 +1080,37 @@ export default function Dashboard() {
           <div className="card bg-gray-50">
             <h3 className="font-semibold text-gray-900 mb-4">Quick Actions</h3>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-
-                            {/* Pending receipts - visible to accountant, president and secretary (approve or verify based on role) */}
-              {['accountant','president','secretary'].includes(localStorage.getItem('role')) && (
-                <button onClick={()=>window.location.href='/pending-actions'} className="p-4 bg-white rounded-xl border border-gray-200 hover:border-yellow-300 hover:bg-yellow-50 transition-all duration-200 text-left">
+              {/* Pending receipts - visible to accountant, president and secretary (approve or verify based on role) */}
+              {["accountant", "president", "secretary"].includes(
+                localStorage.getItem("role")
+              ) && (
+                <button
+                  onClick={() => (window.location.href = "/pending-actions")}
+                  className="p-4 bg-white rounded-xl border border-gray-200 hover:border-yellow-300 hover:bg-yellow-50 transition-all duration-200 text-left"
+                >
                   <div className="flex items-center space-x-3">
                     <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                      <svg className="w-5 h-5 text-yellow-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3" />
+                      <svg
+                        className="w-5 h-5 text-yellow-600"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 8v4l3 3"
+                        />
                       </svg>
                     </div>
                     <div>
-                      <div className="font-medium text-gray-900">Pending Actions</div>
-                      <div className="text-sm text-gray-500">View all pending donations & requests</div>
+                      <div className="font-medium text-gray-900">
+                        Pending Actions
+                      </div>
+                      <div className="text-sm text-gray-500">
+                        View all pending donations & requests
+                      </div>
                     </div>
                   </div>
                 </button>
@@ -1039,8 +1174,6 @@ export default function Dashboard() {
                   </div>
                 </div>
               </button>
-
-
 
               <button
                 onClick={() => fetchModalData("expenses")}

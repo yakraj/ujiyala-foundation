@@ -1,31 +1,76 @@
-import { useEffect, useState } from 'react'
-import api from '../api/axios'
+import { useEffect, useState, useRef } from "react";
+import api from "../api/axios";
+
+import DonationReceipt from "../components/donation.receipt";
+import { downloadComponentAsPDF } from "../components/pdfDownload";
+import Modal from "../components/Modal";
 
 export default function Donations() {
-  const [list, setList] = useState([])
+  const [list, setList] = useState([]);
   // donationType added to categorize donations as per NGO requirements
-  const [form, setForm] = useState({ donorName:'', phone:'', amount:'', donationType:'general', method:'cash', date:new Date().toISOString().slice(0,10), note:'' })
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const role = localStorage.getItem('role') || '';
+  const [form, setForm] = useState({
+    donorName: "",
+    phone: "",
+    amount: "",
+    donationType: "general",
+    method: "cash",
+    date: new Date().toISOString().slice(0, 10),
+    note: "",
+  });
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const role = localStorage.getItem("role") || "";
 
   async function load() {
     try {
-      const { data } = await api.get('/donations')
-      if (data.ok) setList(data.donations)
-    } catch (e) { setError(e.response?.data?.message || e.message) }
+      const { data } = await api.get("/donations");
+      if (data.ok) setList(data.donations);
+    } catch (e) {
+      setError(e.response?.data?.message || e.message);
+    }
   }
-  useEffect(() => { load() }, [])
+  useEffect(() => {
+    load();
+  }, []);
 
   async function onSubmit(e) {
-    e.preventDefault()
-    setLoading(true); setError('')
+    e.preventDefault();
+    setLoading(true);
+    setError("");
     try {
-  const payload = { ...form, amount: Number(form.amount || 0) }
-      const { data } = await api.post('/donations', payload)
-  if (data.ok) { setForm({ donorName:'', phone:'', amount:'', donationType:'general', method:'cash', date:new Date().toISOString().slice(0,10), note:'' }); load() }
-    } catch (e) { setError(e.response?.data?.message || e.message) }
-    finally { setLoading(false) }
+      const payload = { ...form, amount: Number(form.amount || 0) };
+      const { data } = await api.post("/donations", payload);
+      if (data.ok) {
+        setForm({
+          donorName: "",
+          phone: "",
+          amount: "",
+          donationType: "general",
+          method: "cash",
+          date: new Date().toISOString().slice(0, 10),
+          note: "",
+        });
+        load();
+      }
+    } catch (e) {
+      setError(e.response?.data?.message || e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // For PDF download
+  const receiptRef = useRef();
+  const [selectedDonation, setSelectedDonation] = useState(null);
+
+  function handleShowReceipt(donation) {
+    setSelectedDonation(donation);
+  }
+
+  function handleDownloadPDF() {
+    if (selectedDonation) {
+      downloadComponentAsPDF(receiptRef, `receipt-${selectedDonation._id}.pdf`);
+    }
   }
 
   return (
@@ -33,12 +78,40 @@ export default function Donations() {
       <h1 className="text-xl font-semibold">Donations</h1>
       <form onSubmit={onSubmit} className="card space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div><label className="label">Donor Name</label><input className="input" value={form.donorName} onChange={e=>setForm({...form, donorName:e.target.value})} /></div>
-          <div><label className="label">Amount</label><input type="number" className="input" value={form.amount} onChange={e=>setForm({...form, amount:e.target.value})} /></div>
-          <div><label className="label">Phone</label><input className="input" value={form.phone} onChange={e=>setForm({...form, phone:e.target.value})} /></div>
+          <div>
+            <label className="label">Donor Name</label>
+            <input
+              className="input"
+              value={form.donorName}
+              onChange={(e) => setForm({ ...form, donorName: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="label">Amount</label>
+            <input
+              type="number"
+              className="input"
+              value={form.amount}
+              onChange={(e) => setForm({ ...form, amount: e.target.value })}
+            />
+          </div>
+          <div>
+            <label className="label">Phone</label>
+            <input
+              className="input"
+              value={form.phone}
+              onChange={(e) => setForm({ ...form, phone: e.target.value })}
+            />
+          </div>
           <div>
             <label className="label">Donation Type</label>
-            <select className="input" value={form.donationType} onChange={e=>setForm({...form, donationType:e.target.value})}>
+            <select
+              className="input"
+              value={form.donationType}
+              onChange={(e) =>
+                setForm({ ...form, donationType: e.target.value })
+              }
+            >
               <option value="general">General</option>
               <option value="education">Education</option>
               <option value="health">Health</option>
@@ -47,34 +120,100 @@ export default function Donations() {
               <option value="other">Other</option>
             </select>
           </div>
-          <div><label className="label">Method</label>
-            <select className="input" value={form.method} onChange={e=>setForm({...form, method:e.target.value})}>
-              <option>cash</option><option>upi</option><option>bank</option><option>card</option><option>other</option>
+          <div>
+            <label className="label">Method</label>
+            <select
+              className="input"
+              value={form.method}
+              onChange={(e) => setForm({ ...form, method: e.target.value })}
+            >
+              <option>cash</option>
+              <option>upi</option>
+              <option>bank</option>
+              <option>card</option>
+              <option>other</option>
             </select>
           </div>
-          <div><label className="label">Date</label><input type="date" className="input" value={form.date} onChange={e=>setForm({...form, date:e.target.value})} /></div>
-          <div className="sm:col-span-2"><label className="label">Note</label><input className="input" value={form.note} onChange={e=>setForm({...form, note:e.target.value})} /></div>
+          <div>
+            <label className="label">Date</label>
+            <input
+              type="date"
+              className="input"
+              value={form.date}
+              onChange={(e) => setForm({ ...form, date: e.target.value })}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="label">Note</label>
+            <input
+              className="input"
+              value={form.note}
+              onChange={(e) => setForm({ ...form, note: e.target.value })}
+            />
+          </div>
         </div>
         {error && <div className="text-red-600 text-sm">{error}</div>}
-  <button className="btn w-full" disabled={loading}>{loading ? 'Saving...' : 'Add Donation'}</button>
+        <button className="btn w-full" disabled={loading}>
+          {loading ? "Saving..." : "Add Donation"}
+        </button>
       </form>
 
       <div className="grid gap-3">
-        {list.map(d => (
-          <div key={d._id} className="card flex items-start justify-between gap-3">
+        {list.map((d) => (
+          <div
+            key={d._id}
+            className="card flex items-start justify-between gap-3"
+          >
             <div>
-              <div className="font-medium">{d.donorName} • ₹{d.amount} {d.verified ? <span className="text-sm text-green-600">(verified)</span> : <span className="text-sm text-orange-600">(pending)</span>}</div>
-              <div className="text-sm text-slate-500">{new Date(d.date).toLocaleDateString()} • {d.method} • {d.donationType || d.type || 'general'}</div>
+              <div className="font-medium">
+                {d.donorName} • ₹{d.amount}{" "}
+                {d.verified ? (
+                  <span className="text-sm text-green-600">(verified)</span>
+                ) : (
+                  <span className="text-sm text-orange-600">(pending)</span>
+                )}
+              </div>
+              <div className="text-sm text-slate-500">
+                {new Date(d.date).toLocaleDateString()} • {d.method} •{" "}
+                {d.donationType || d.type || "general"}
+              </div>
               {d.note && <div className="text-sm mt-1">{d.note}</div>}
             </div>
             <div className="flex flex-col gap-2">
-              {role === 'accountant' && !d.verified && (
-                <button className="btn" onClick={async()=>{ await api.post(`/donations/${d._id}/verify`); load(); }}>Verify</button>
+              {role === "accountant" && !d.verified && (
+                <button
+                  className="btn"
+                  onClick={async () => {
+                    await api.post(`/donations/${d._id}/verify`);
+                    load();
+                  }}
+                >
+                  Verify
+                </button>
               )}
+              <button className="btn" onClick={() => handleShowReceipt(d)}>
+                Download Receipt
+              </button>
             </div>
           </div>
         ))}
       </div>
+      {/* Modal for viewing and downloading receipt */}
+      <Modal
+        open={!!selectedDonation}
+        onClose={() => setSelectedDonation(null)}
+      >
+        {selectedDonation && (
+          <>
+            <DonationReceipt ref={receiptRef} donation={selectedDonation} />
+            <div className="mt-4 flex justify-end">
+              <button className="btn" onClick={handleDownloadPDF}>
+                Download PDF
+              </button>
+            </div>
+          </>
+        )}
+      </Modal>
     </div>
-  )
+  );
 }
