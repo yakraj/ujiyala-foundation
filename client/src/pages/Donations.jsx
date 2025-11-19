@@ -191,9 +191,9 @@ export default function Donations() {
                   Verify
                 </button>
               )}
-              <button className="btn" onClick={() => handleShowReceipt(d)}>
+              {/* <button className="btn" onClick={() => handleShowReceipt(d)}>
                 Download Receipt
-              </button>
+              </button> */}
             </div>
           </div>
         ))}
