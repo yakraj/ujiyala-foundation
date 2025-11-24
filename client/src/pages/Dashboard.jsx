@@ -102,197 +102,383 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
 
       const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
 
-      // Build the certificate HTML
+      // Calculate membership expiry
+      const joinDate = new Date(member.joinedOn || member.createdAt);
+      const expiryDate = new Date(joinDate);
+      const yearsToAdd = member.memberType === "honorary" ? 5 : 1;
+      expiryDate.setFullYear(expiryDate.getFullYear() + yearsToAdd);
+
+      // Build the receipt HTML
       const certificateHTML = `
         <!DOCTYPE html>
-        <html>
+        <html lang="en">
           <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Membership Certificate</title>
+            <meta charset="UTF-8" />
+            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+            <title>Ujiyala Foundation Membership Receipt</title>
             <style>
-              * { margin: 0; padding: 0; box-sizing: border-box; }
-              body {
-                font-family: Arial, sans-serif;
-                background: white;
-                color: #333;
+              :root {
+                --primary-dark: #2c3e50;
+                --accent-color: #ff520d;
+                --border-soft: #eee;
+                --bg-light: #f9f9f9;
               }
-              .certificate-container {
-                padding: 40px;
-                max-width: 900px;
-                margin: 0 auto;
-                background: white;
-                min-height: 100vh;
+              body {
+                font-family: "Inter", Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f4f7f6;
+              }
+              .receipt-container {
+                width: 8.5in;
+                min-height: 11in;
+                padding: 0.7in;
+                border: 1px solid var(--border-soft);
+                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+                background-color: #fff;
+                box-sizing: border-box;
+                border-radius: 12px;
               }
               .header-text {
                 text-align: center;
-                font-size: 12px;
-                color: #666;
-                margin-bottom: 20px;
-                font-weight: bold;
+                font-size: 1.3em;
+                font-weight: 800;
+                margin-bottom: 25px;
+                color: var(--primary-dark);
+                border-bottom: 3px solid var(--accent-color);
+                padding-bottom: 8px;
                 text-transform: uppercase;
-                letter-spacing: 1px;
               }
               .top-section {
                 display: flex;
                 justify-content: space-between;
-                align-items: center;
-                margin-bottom: 30px;
-                border-bottom: 2px solid #ff520d;
-                padding-bottom: 20px;
+                align-items: flex-start;
+                margin-bottom: 35px;
+              }
+              .logo-section {
+                width: 20%;
+                display: flex;
+                justify-content: center;
+              }
+              .logo-section img {
+                width: 90px;
+                height: 90px;
+                object-fit: contain;
+                border-radius: 8px;
               }
               .organization-details {
-                text-align: center;
-                flex: 1;
+                width: 60%;
+                font-size: 0.9em;
+                color: #555;
+                line-height: 1.5;
               }
-              .org-name {
-                font-size: 24px;
-                font-weight: bold;
-                color: #1a5c7a;
+              .organization-details p { margin: 0; padding: 0; }
+              .organization-details .org-name {
+                font-weight: 800;
+                color: var(--primary-dark);
+                font-size: 1.2em;
                 margin-bottom: 5px;
               }
-              .organization-details p {
-                font-size: 12px;
-                margin: 3px 0;
-                color: #666;
+              .section-box {
+                border: 1px solid var(--border-soft);
+                margin-bottom: 25px;
+                padding: 0;
+                border-radius: 6px;
+                overflow: hidden;
               }
-              .accent-color {
-                color: #ff520d;
+              .receipt-info-grid {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                border-left: 1px solid var(--border-soft);
+                border-top: 1px solid var(--border-soft);
               }
-              .main-content {
-                text-align: center;
-                margin: 40px 0;
+              .receipt-info-grid > div {
+                border-right: 1px solid var(--border-soft);
+                border-bottom: 1px solid var(--border-soft);
+                padding: 12px 15px;
+                font-size: 0.9em;
+                box-sizing: border-box;
+                background-color: #fff;
               }
-              .main-content h1 {
-                font-size: 32px;
-                color: #1a5c7a;
-                margin-bottom: 20px;
+              .receipt-info-grid > div:nth-child(odd) {
+                background-color: var(--bg-light);
+                border-left: none;
+              }
+              .receipt-info-grid > div:nth-child(even) { border-right: none; }
+              .receipt-info-grid .label {
+                font-weight: normal;
+                color: #777;
+                display: block;
+                margin-bottom: 2px;
+                font-size: 0.8em;
+              }
+              .receipt-info-grid .value {
                 font-weight: bold;
+                color: var(--primary-dark);
               }
-              .main-content p {
-                font-size: 16px;
+              .receipt-info-grid .value.accent { color: var(--accent-color); }
+              .bank-details-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 0.95em;
+              }
+              .bank-details-table th,
+              .bank-details-table td {
+                padding: 14px 18px;
+                text-align: left;
+                vertical-align: top;
+                border-bottom: 1px solid var(--border-soft);
+              }
+              .bank-details-table th {
+                width: 50%;
+                font-weight: 700;
+                color: var(--primary-dark);
+                background-color: var(--bg-light);
+                border-right: 1px solid var(--border-soft);
+                text-transform: uppercase;
+              }
+              .bank-details-table td {
+                width: 50%;
+                color: #000;
+                background-color: #fff;
+              }
+              .bank-details-table tr:last-child th,
+              .bank-details-table tr:last-child td { border-bottom: none; }
+              .bank-details-table .details-label {
+                font-weight: normal;
+                color: #777;
+                display: block;
+                margin-bottom: 2px;
+                font-size: 0.8em;
+              }
+              .bank-details-table .details-value {
+                font-weight: bold;
+                color: var(--primary-dark);
+                font-size: 1em;
+              }
+              .bank-details-table .details-value.accent {
+                color: var(--accent-color);
+                font-size: 1.1em;
+              }
+              .bank-details-table .col-divider {
+                border-right: 1px solid var(--border-soft);
+              }
+              .pledge-table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 1em;
+              }
+              .pledge-table th,
+              .pledge-table td {
+                border: 1px solid var(--border-soft);
+                padding: 15px 18px;
+                text-align: left;
+              }
+              .pledge-table th {
+                background-color: var(--bg-light);
+                font-weight: 700;
+                color: var(--primary-dark);
+              }
+              .total-row th {
+                background-color: var(--primary-dark) !important;
+                color: white !important;
+                font-size: 1.2em;
+              }
+              .total-row .amount {
+                color: var(--accent-color) !important;
+                font-weight: 800;
+                text-align: right;
+                font-size: 1.3em;
+              }
+              .info-block {
+                font-size: 0.85em;
+                color: #444;
                 line-height: 1.6;
-                margin: 15px 0;
-                color: #333;
+                margin-bottom: 10px;
+                padding-left: 20px;
+                position: relative;
               }
-              .member-name {
-                font-size: 28px;
-                color: #ff520d;
+              .info-block::before {
+                content: "•";
+                color: var(--accent-color);
                 font-weight: bold;
-                margin: 20px 0;
-                text-decoration: underline;
+                display: inline-block;
+                width: 1em;
+                margin-left: -1em;
               }
-              .details-section {
-                margin: 40px 0;
-                border: 2px solid #1a5c7a;
-                padding: 20px;
-                background: #f9f9f9;
-              }
-              .detail-item {
-                display: flex;
-                justify-content: space-between;
-                padding: 10px 0;
-                border-bottom: 1px solid #ddd;
-                font-size: 14px;
-              }
-              .detail-item:last-child {
-                border-bottom: none;
-              }
-              .detail-label {
-                font-weight: bold;
-                color: #333;
-              }
-              .detail-value {
-                color: #666;
-              }
-              .footer-text {
+              .info-block.small {
+                font-size: 0.75em;
+                margin-top: 20px;
                 text-align: center;
-                font-size: 12px;
-                color: #666;
-                margin-top: 40px;
-                line-height: 1.6;
               }
-              .signature-section {
-                display: flex;
-                justify-content: space-around;
-                margin-top: 40px;
-              }
-              .signature {
+              .info-block.small::before { content: none; }
+              .niti-info {
                 text-align: center;
-                width: 150px;
-              }
-              .signature-line {
-                border-top: 1px solid #333;
-                margin-top: 30px;
-                padding-top: 5px;
+                font-size: 0.75em;
+                color: #555;
+                margin-top: 25px;
               }
               @media print {
                 body { margin: 0; padding: 0; }
-                .certificate-container { padding: 20px; }
+                .receipt-container { padding: 20px; }
               }
             </style>
           </head>
           <body>
-            <div class="certificate-container">
-              <p class="header-text">UJIYALA FOUNDATION | Membership Confirmation Receipt</p>
-              
+            <div class="receipt-container">
+              <p class="header-text">
+                UJIYALA FOUNDATION | Membership Confirmation Receipt
+              </p>
+
               <div class="top-section">
+                <div class="logo-section">
+                  <img src="/assets/ujiyala_logo.png" alt="Ujiyala Foundation Logo" />
+                </div>
                 <div class="organization-details">
                   <p class="org-name">UJIYALA FOUNDATION</p>
                   <p>Lonarwadi, Sinnar, Nashik MH</p>
-                  <p class="accent-color"><strong>www.ujiyalafoundation.org</strong></p>
+                  <p style="color: var(--accent-color); font-weight: bold">
+                    www.ujiyalafoundation.org
+                  </p>
                   <p>Contact No: +91-9198539853 / 9922555560</p>
                 </div>
               </div>
 
-              <div class="main-content">
-                <h1>Membership Certificate</h1>
-                <p>This document certifies that</p>
-                <p class="member-name">${member.name || "Member Name"}</p>
-                <p>has officially become a <strong>Permanent Member</strong> of the Ujiyala Foundation</p>
-                <p>effective from <strong>${new Date().toLocaleDateString(
-                  "en-IN",
-                  { day: "numeric", month: "long", year: "numeric" }
-                )}</strong></p>
-              </div>
-
-              <div class="details-section">
-                <div class="detail-item">
-                  <span class="detail-label">Membership Number:</span>
-                  <span class="detail-value">${
-                    member.membershipNo || "N/A"
-                  }</span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">Membership Type:</span>
-                  <span class="detail-value">${
-                    member.membershipType || "Permanent"
-                  }</span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">Join Date:</span>
-                  <span class="detail-value">${
-                    new Date(member.joinDate).toLocaleDateString("en-IN") ||
-                    new Date().toLocaleDateString("en-IN")
-                  }</span>
-                </div>
-                <div class="detail-item">
-                  <span class="detail-label">Valid Until:</span>
-                  <span class="detail-value">${
-                    member.expiryDate
-                      ? new Date(member.expiryDate).toLocaleDateString("en-IN")
-                      : "Lifetime"
-                  }</span>
+              <div class="section-box">
+                <div class="receipt-info-grid">
+                  <div>
+                    <span class="label">MEMBERSHIP NO</span>
+                    <span class="value accent">${
+                      member.membershipNo || "N/A"
+                    }</span>
+                  </div>
+                  <div>
+                    <span class="label">Member Type</span>
+                    <span class="value">${
+                      member.memberType === "honorary"
+                        ? "Permanent (Honorary)"
+                        : "General"
+                    }</span>
+                  </div>
+                  <div>
+                    <span class="label">REFERENCE ID</span>
+                    <span class="value">${member.refId || "N/A"}</span>
+                  </div>
+                  <div>
+                    <span class="label">RECEIPT DATE</span>
+                    <span class="value">${new Date().toLocaleDateString(
+                      "en-IN",
+                      { day: "numeric", month: "long", year: "numeric" }
+                    )}</span>
+                  </div>
                 </div>
               </div>
 
-              <div class="footer-text">
-                <p>Thank you for becoming a Member of the Ujiyala Foundation.</p>
-                <p>Your contribution supports our vision of empowering lives, serving communities, and spreading hope.</p>
-                <p style="margin-top: 20px; font-size: 11px; color: #999;">
-                  This is a computer-generated document and requires no physical signature.
-                </p>
+              <div class="section-box">
+                <table class="bank-details-table">
+                  <thead>
+                    <tr>
+                      <th class="col-divider">MEMBER DETAILS</th>
+                      <th>ORGANIZATION BANK DETAILS</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="col-divider">
+                        <span class="details-label">NAME</span>
+                        <span class="details-value accent">${member.name}</span>
+                      </td>
+                      <td>
+                        <span class="details-label">Bank Name:</span>
+                        <span class="details-value">Bank of Maharashtra</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="col-divider">
+                        <span class="details-label">EMAIL</span>
+                        <span class="details-value">${
+                          member.email || "N/A"
+                        }</span>
+                      </td>
+                      <td>
+                        <span class="details-label">Account Number:</span>
+                        <span class="details-value">60458188629</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="col-divider">
+                        <span class="details-label">CONTACT NO</span>
+                        <span class="details-value">${
+                          member.phone || "N/A"
+                        }</span>
+                      </td>
+                      <td>
+                        <span class="details-label">IFSC Code:</span>
+                        <span class="details-value">MAHB0001791</span>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td class="col-divider" style="border-bottom: none">
+                        <span class="details-label">ADDRESS</span>
+                        <span class="details-value">${
+                          member.address || "N/A"
+                        }</span>
+                      </td>
+                      <td style="border-bottom: none">
+                        <span class="details-label">Branch:</span>
+                        <span class="details-value">Nashik Branch</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
+
+              <div class="section-box" style="border: none">
+                <table class="pledge-table">
+                  <thead>
+                    <tr>
+                      <th>Membership Fee / Donation Details</th>
+                      <th style="text-align: right">Amount [INR]</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Membership Fee (valid until ${expiryDate.toLocaleDateString(
+                        "en-IN",
+                        { day: "numeric", month: "long", year: "numeric" }
+                      )})</td>
+                      <td style="text-align: right">${(
+                        member.membershipFee || 0
+                      ).toFixed(2)}</td>
+                    </tr>
+                    <tr class="total-row">
+                      <th>TOTAL AMOUNT RECEIVED</th>
+                      <th class="amount">${(member.membershipFee || 0).toFixed(
+                        2
+                      )}</th>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <p class="info-block">
+                Thank you for becoming a Member of the Ujiyala Foundation. Your
+                contribution supports our vision of empowering lives, serving
+                communities, and spreading hope.
+              </p>
+              <p class="info-block">
+                All donations are eligible for Tax exemption under the relevant sections
+                of the Income Tax Act. Please refer to your Tax Exemption Certificate
+                for details.
+              </p>
+
+              <p class="niti-info">
+                NITI Aayog Unique ID : MH/2021/0281448
+              </p>
+              <p class="info-block small">
+                This is a computer-generated document and requires no physical
+                signature.
+              </p>
             </div>
           </body>
         </html>
@@ -305,10 +491,30 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
       // Wait for iframe content to load, then trigger print
       iframe.onload = () => {
         setTimeout(() => {
-          iframe.contentWindow.print();
+          let printed = false;
+          const doPrint = () => {
+            if (printed) return; // Ensure print executes only once
+            printed = true;
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            setTimeout(() => {
+              if (document.body.contains(iframe)) {
+                document.body.removeChild(iframe);
+              }
+            }, 500);
+          };
+
+          iframe.onload = () => {
+            if (!printed) setTimeout(doPrint, 200); // Trigger print only if not already printed
+          };
+
+          doPrint();
+
           // Remove iframe after print dialog closes
           setTimeout(() => {
-            document.body.removeChild(iframe);
+            if (document.body.contains(iframe)) {
+              document.body.removeChild(iframe);
+            }
           }, 500);
         }, 200);
       };
@@ -323,6 +529,36 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
     } catch (error) {
       console.error("Error opening print dialog:", error);
       alert("Failed to open print dialog. Please try again.");
+    }
+  };
+
+  const downloadCertificate = async (member) => {
+    try {
+      const response = await api.post(
+        "/certificate",
+        {
+          name: member.name,
+          Date: member.joinDate || member.createdAt,
+          membershipNo: member.membershipNo,
+        },
+        {
+          responseType: "blob",
+        }
+      );
+
+      const blob = new Blob([response.data], { type: "application/pdf" });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.style.display = "none";
+      a.href = url;
+      a.download = `${member.name} Certificate (Ujiyala Foundation).pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error("Error downloading certificate:", error);
+      alert("Failed to download certificate. Please try again.");
     }
   };
 
@@ -795,7 +1031,7 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                       {type === "members" && (
                         <button
                           onClick={() => downloadMemberPDF(item)}
-                          className="flex items-center space-x-1 px-3 py-1 bg-red-100 text-red-600 rounded-lg hover:bg-red-200 transition-colors text-sm"
+                          className="flex items-center space-x-1 px-3 py-1 bg-red-100 text-green-600 rounded-lg hover:bg-red-200 transition-colors text-sm"
                         >
                           <svg
                             className="w-4 h-4"
@@ -810,9 +1046,10 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                               d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                             />
                           </svg>
-                          <span>Download Certificate</span>
+                          <span>Download Receipt</span>
                         </button>
                       )}
+
                       {type === "donations" &&
                         localStorage.getItem("role") === "accountant" &&
                         !item.paymentVerified && (

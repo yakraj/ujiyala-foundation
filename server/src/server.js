@@ -17,6 +17,7 @@ import donationsRoutes from "./routes/donations.routes.js";
 import expensesRoutes from "./routes/expenses.routes.js";
 import statsRoutes from "./routes/stats.routes.js";
 import healthRoutes from "./routes/health.routes.js";
+import certificateRoutes from "./routes/Certificate.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,6 +38,7 @@ app.use("/api/donations", donationsRoutes);
 app.use("/api/expenses", expensesRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/_health", healthRoutes);
+app.use("/api/certificate", certificateRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

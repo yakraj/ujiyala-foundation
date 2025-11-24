@@ -1,0 +1,338 @@
+@font-face {
+  font-family: "Roherat-font";
+  src: url("fonts/Roherat.woff2") format("woff2"),
+    url("fonts/Roherat.woff") format("woff"),
+    url("fonts/Roherat.ttf") format("truetype");
+  /* Optional descriptors for better control */
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; /* Helps control font loading behavior */
+}
+@font-face {
+  font-family: "Scary-font";
+  src: url("fonts/Scary.woff2") format("woff2"),
+    url("fonts/Scary.woff") format("woff"),
+    url("fonts/Scary.ttf") format("truetype");
+  /* Optional descriptors for better control */
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; /* Helps control font loading behavior */
+}
+@font-face {
+  font-family: "Signtelly-font";
+  src: url("fonts/Signtelly.woff2") format("woff2"),
+    url("fonts/Signtelly.woff") format("woff"),
+    url("fonts/Signtelly.ttf") format("truetype");
+  /* Optional descriptors for better control */
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; /* Helps control font loading behavior */
+}
+@font-face {
+  font-family: "YatraOne-Regular";
+  src: url("fonts/YatraOne-Regular.woff2") format("woff2"),
+    url("fonts/YatraOne-Regular.woff") format("woff"),
+    url("fonts/YatraOne-Regular.ttf") format("truetype");
+  /* Optional descriptors for better control */
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap; /* Helps control font loading behavior */
+}
+
+.block_ {
+  display: block;
+  font-weight: bold;
+  font-family: serif;
+  font-size: 0.58333em;
+  line-height: 1.08;
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+  text-align: center;
+}
+.block_1 {
+  display: block;
+  font-family: "YatraOne-Regular", fantasy;
+  font-size: 1rem;
+  margin: 0px;
+  font: 0;
+
+  text-align: center;
+}
+.block_2 {
+  display: block;
+  font-family: serif;
+  font-size: 0.58333em;
+  line-height: 1.2;
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 12pt;
+  padding-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+  text-align: center;
+}
+.block_3 {
+  display: block;
+  font-family: "Signtelly-font", fantasy;
+  font-size: 4em;
+  line-height: 1.08;
+  margin-bottom: 8pt;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+  text-align: center;
+}
+.block_4 {
+  display: block;
+  font-family: "YatraOne-Regular", fantasy;
+  line-height: 1.2;
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+  text-align: center;
+}
+.block_5 {
+  color: #385623;
+  display: block;
+  font-family: "Scary-font", cursive;
+  font-size: 8em;
+  margin: 0;
+  text-align: center;
+}
+.block_6 {
+  color: #000;
+  display: block;
+  font-family: "YatraOne-Regular", fantasy;
+  margin-right: 0;
+  text-align: center;
+  width: 70%;
+  margin: 0;
+}
+.block_7 {
+  height: 1px;
+  width: 30%;
+  align-items: center;
+  color: #000;
+  display: block;
+  line-height: 1.2;
+  margin-bottom: 0;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+  text-align: center;
+}
+.block_8 {
+  display: block;
+  font-family: serif;
+  font-size: 0.58333em;
+  line-height: 1.08;
+  margin-bottom: 8pt;
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+}
+.Logo-and-name {
+  padding-top: 2%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+html, body {
+  margin: 0;
+  padding: 0;
+}
+.Logo-and-name img {
+  width: 12%;
+  margin-right: 3%;
+  /* aspect-ratio: 1/1; */
+}
+  @page {
+    margin: 0;
+    size: 931px 675px; /* A4 landscape in px */
+  }
+#certificate-wrapper {
+  width: 931px;
+  height: 675px;
+  overflow: hidden;
+  background: white;
+  position: relative;
+  box-sizing: border-box;
+}
+.calibre {
+  height: 660px;
+  aspect-ratio: 1.41/1;
+  font-family: "Castellar", serif;
+  font-size: 1em;
+  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background-image: url(./images/frame.jpg);
+  background-size: cover;
+  background-position: center;
+}
+.calibre1 {
+  display: block;
+  height: 595pt;
+  line-height: 1.2;
+  margin-left: auto;
+  width: 841pt;
+}
+
+.calibre3 {
+  font-weight: bold;
+  line-height: 1.2;
+}
+.calibre4 {
+  display: table-row-group;
+  line-height: 1.2;
+  vertical-align: middle;
+}
+.calibre5 {
+  display: table-row;
+  line-height: 1.2;
+  vertical-align: inherit;
+}
+
+.sign-area {
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+.sign-area .sign_ {
+  text-align: center;
+  p {
+    margin: 0;
+  }
+}
+.sign-area .sign_ hr {
+  margin-bottom: 0px;
+  width: 30%;
+}
+.sign-area .sign_ img {
+  width: 27%;
+  margin-bottom: -10%;
+  margin-top: -10%;
+}
+.sign-area .sign_ p:nth-child(3) {
+  font-family: "Roherat-font", sans-serif;
+  line-height: 1rem;
+  font-weight: bold;
+}
+.sign-area .sign_ p:nth-child(4) {
+  font-family: "YatraOne-Regular", sans-serif;
+}
+.table_ {
+  /* margin-top: 7%;
+  margin-bottom: 3%;
+  border-bottom-color: currentColor;
+  border-bottom-style: none;
+  border-bottom-width: 1pt;
+  border-collapse: collapse;
+  border-left-color: currentColor;
+  border-left-style: none;
+  border-left-width: 1pt;
+  border-right-color: currentColor;
+  border-right-style: none;
+  border-right-width: 1pt;
+  border-spacing: 2px;
+  border-top-color: currentColor;
+  border-top-style: none;
+  border-top-width: 1pt;
+  display: table;
+  line-height: 1.2; */
+}
+.td_ {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: transparent;
+  border-right-color: currentColor;
+  border-right-style: none;
+  border-right-width: 1pt;
+  display: table-cell;
+  line-height: 1.2;
+  padding-bottom: 0.5ex;
+  padding-left: 5.4pt;
+  padding-right: 5.4pt;
+  padding-top: 0.5ex;
+  text-align: inherit;
+  vertical-align: top;
+  width: 349pt;
+}
+.td_1 {
+  display: flex !important;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: transparent;
+  border-left-color: currentColor;
+  border-left-style: none;
+  border-left-width: 1pt;
+  display: table-cell;
+  line-height: 1.2;
+  padding-bottom: 0.5ex;
+  padding-left: 5.4pt;
+  padding-right: 5.4pt;
+  padding-top: 0.5ex;
+  text-align: inherit;
+  vertical-align: top;
+  width: 349pt;
+}
+.text_ {
+  color: #000;
+  font-family: "Calibri Light", sans-serif;
+  font-size: 1.71429em;
+  line-height: 1.2;
+}
+.text_1 {
+  color: #ff520d;
+  font-family: "YatraOne-Regular", fantasy;
+  font-size: 3.42857em;
+  line-height: 1.2;
+}
+.text_2 {
+  color: #70ad47;
+  font-family: "YatraOne-Regular", fantasy;
+  font-size: 3.42857em;
+  line-height: 1.2;
+}
+.text_3 {
+  color: #538135;
+  font-family: "YatraOne-Regular", fantasy;
+  font-size: 3.42857em;
+  line-height: 1.2;
+}
+
+@page {
+  margin-bottom: 5pt;
+  margin-top: 5pt;
+}
