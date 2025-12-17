@@ -92,16 +92,6 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
   console.log(selectedDonation);
   const downloadMemberPDF = (member) => {
     try {
-      // Create a hidden iframe for printing
-      const iframe = document.createElement("iframe");
-      iframe.style.position = "absolute";
-      iframe.style.left = "-9999px";
-      iframe.style.width = "8.5in";
-      iframe.style.height = "11in";
-      document.body.appendChild(iframe);
-
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-
       // Calculate membership expiry
       const joinDate = new Date(member.joinedOn || member.createdAt);
       const expiryDate = new Date(joinDate);
@@ -127,14 +117,15 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                 font-family: "Inter", Arial, sans-serif;
                 margin: 0;
                 padding: 20px;
-                background-color: #f4f7f6;
+                background-color: #fff;
               }
               .receipt-container {
-                width: 8.5in;
-                min-height: 11in;
-                padding: 0.7in;
+                width: 100%;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
                 border: 1px solid var(--border-soft);
-                box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+                box-shadow: none;
                 background-color: #fff;
                 box-sizing: border-box;
                 border-radius: 12px;
@@ -318,14 +309,10 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                 color: #555;
                 margin-top: 25px;
               }
-              @media print {
-                body { margin: 0; padding: 0; }
-                .receipt-container { padding: 20px; }
-              }
             </style>
           </head>
           <body>
-            <div class="receipt-container">
+            <div class="receipt-container" id="receipt-content">
               <p class="header-text">
                 UJIYALA FOUNDATION | Membership Confirmation Receipt
               </p>
@@ -484,51 +471,33 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
         </html>
       `;
 
-      iframeDoc.open();
-      iframeDoc.write(certificateHTML);
-      iframeDoc.close();
+      // Create a temporary container
+      const element = document.createElement("div");
+      element.innerHTML = certificateHTML;
+      document.body.appendChild(element);
 
-      // Wait for iframe content to load, then trigger print
-      iframe.onload = () => {
-        setTimeout(() => {
-          let printed = false;
-          const doPrint = () => {
-            if (printed) return; // Ensure print executes only once
-            printed = true;
-            iframe.contentWindow.focus();
-            iframe.contentWindow.print();
-            setTimeout(() => {
-              if (document.body.contains(iframe)) {
-                document.body.removeChild(iframe);
-              }
-            }, 500);
-          };
+      // Use html2pdf to download
+      import("html2pdf.js").then((html2pdf) => {
+        const opt = {
+          margin: 0.5,
+          filename: `${member.name}_Receipt.pdf`,
+          image: { type: "jpeg", quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
+        };
 
-          iframe.onload = () => {
-            if (!printed) setTimeout(doPrint, 200); // Trigger print only if not already printed
-          };
+        html2pdf.default()
+          .from(element.querySelector("#receipt-content"))
+          .set(opt)
+          .save()
+          .then(() => {
+            document.body.removeChild(element);
+          });
+      });
 
-          doPrint();
-
-          // Remove iframe after print dialog closes
-          setTimeout(() => {
-            if (document.body.contains(iframe)) {
-              document.body.removeChild(iframe);
-            }
-          }, 500);
-        }, 200);
-      };
-
-      // Trigger onload manually if not called automatically
-      if (
-        iframe.contentDocument &&
-        iframe.contentDocument.readyState === "complete"
-      ) {
-        iframe.onload();
-      }
     } catch (error) {
-      console.error("Error opening print dialog:", error);
-      alert("Failed to open print dialog. Please try again.");
+      console.error("Error downloading PDF:", error);
+      alert("Failed to download PDF. Please try again.");
     }
   };
 
@@ -1049,7 +1018,27 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                           <span>Download Receipt</span>
                         </button>
                       )}
-
+                      {type === "members" && (
+                        <button
+                          onClick={() => downloadCertificate(item)}
+                          className="flex items-center space-x-1 px-3 py-1 bg-red-100 text-blue-600 rounded-lg hover:bg-red-200 transition-colors text-sm"
+                        >
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                            />
+                          </svg>
+                          <span>Download Certificate</span>
+                        </button>
+                      )}
                       {type === "donations" &&
                         localStorage.getItem("role") === "accountant" &&
                         !item.paymentVerified && (

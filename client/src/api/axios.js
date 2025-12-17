@@ -25,8 +25,11 @@ api.interceptors.response.use(
         error.response.data.message === "Missing token")
     ) {
       localStorage.removeItem("token");
-      // Optionally, redirect to login page
+      // Redirect to login
       window.location.href = "/login";
+      // Return a pending promise to prevent downstream error handling (like displaying "Invalid token")
+      // from executing while the page redirects.
+      return new Promise(() => {});
     }
     return Promise.reject(error);
   }
