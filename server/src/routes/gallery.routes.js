@@ -1,6 +1,9 @@
 import express from "express";
 import { requireAuth } from "../middleware/auth.js";
-import { uploadProjectImage, uploadToCloudinary } from "../middleware/cloudinary.js";
+import {
+  uploadProjectImage,
+  uploadToCloudinary,
+} from "../middleware/cloudinary.js";
 import Gallery from "../models/Gallery.js";
 
 const router = express.Router();
@@ -22,7 +25,9 @@ router.post(
       if (req.file && req.file.cloudinaryUrl) {
         body.imageUrl = req.file.cloudinaryUrl;
       } else {
-        return res.status(400).json({ ok: false, message: "Image is required" });
+        return res
+          .status(400)
+          .json({ ok: false, message: "Image is required" });
       }
 
       const item = await Gallery.create(body);

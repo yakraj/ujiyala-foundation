@@ -1,6 +1,9 @@
 import express from "express";
 import { requireAuth } from "../middleware/auth.js";
-import { uploadProjectImage, uploadToCloudinary } from "../middleware/cloudinary.js";
+import {
+  uploadProjectImage,
+  uploadToCloudinary,
+} from "../middleware/cloudinary.js";
 import Project from "../models/Project.js";
 
 const router = express.Router();
@@ -25,19 +28,25 @@ router.post(
       }
 
       // Parse JSON fields if they are strings (multipart/form-data)
-      if (typeof body.volunteers === 'string') {
-        try { body.volunteers = JSON.parse(body.volunteers); } catch (e) {
-            // If it's a comma separated string
-            body.volunteers = body.volunteers.split(',').map(v => v.trim());
+      if (typeof body.volunteers === "string") {
+        try {
+          body.volunteers = JSON.parse(body.volunteers);
+        } catch (e) {
+          // If it's a comma separated string
+          body.volunteers = body.volunteers.split(",").map((v) => v.trim());
         }
       }
-      if (typeof body.tags === 'string') {
-        try { body.tags = JSON.parse(body.tags); } catch (e) {
-             body.tags = body.tags.split(',').map(t => t.trim());
+      if (typeof body.tags === "string") {
+        try {
+          body.tags = JSON.parse(body.tags);
+        } catch (e) {
+          body.tags = body.tags.split(",").map((t) => t.trim());
         }
       }
-      if (typeof body.impact === 'string') {
-        try { body.impact = JSON.parse(body.impact); } catch (e) {}
+      if (typeof body.impact === "string") {
+        try {
+          body.impact = JSON.parse(body.impact);
+        } catch (e) {}
       }
 
       const project = await Project.create(body);
