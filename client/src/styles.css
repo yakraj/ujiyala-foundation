@@ -57,6 +57,14 @@ body {
 .app-tag {
   font-family: "Yatra", "Courier New", Courier, monospace;
 }
+
+/* Ujiyala brand font helpers */
+.ujiyala-font,
+.org-name,
+.header-text,
+.text_1 {
+  font-family: "Yatra", "Noto Sans Gujarati", sans-serif;
+}
 .absolute-image {
   height: 80px;
   aspect-ratio: 1/1;

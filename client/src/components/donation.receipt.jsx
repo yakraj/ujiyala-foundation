@@ -153,7 +153,8 @@ const DonationReceipt = forwardRef(({ donation }, ref) => {
         </div>
         <p className="info-block">
           {/* UPDATED: Text for Donation */}
-          Thank you for your generous donation to the Ujiyala Foundation. Your
+          Thank you for your generous donation to the{" "}
+          <span className="ujiyala-font">Ujiyala Foundation</span>. Your
           contribution supports our vision of empowering lives, serving
           communities, and spreading hope.
         </p>

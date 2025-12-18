@@ -96,6 +96,12 @@ router.post("/verify-bulk", requireAuth, async (req, res, next) => {
       await donation.save();
       results.push(donation.toObject());
     }
+
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("stats-update");
+    }
+
     res.json({ ok: true, results });
   } catch (e) {
     next(e);
@@ -122,6 +128,19 @@ router.post("/:id/verify", requireAuth, async (req, res, next) => {
       donation.receiptId = `REC-${uuidv4().slice(0, 8).toUpperCase()}`;
     }
     await donation.save();
+
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("stats-update");
+      io.emit("new-donation", {
+        donorName: donation.donorName,
+        amount: donation.amount,
+        date: donation.date,
+        note: donation.note,
+        method: donation.method,
+      });
+    }
+
     res.json({ ok: true, donation });
   } catch (e) {
     next(e);

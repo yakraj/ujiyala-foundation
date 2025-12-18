@@ -28,7 +28,8 @@ router.post(
   async (req, res, next) => {
     console.log(req.body);
     try {
-      if (req.user.role !== 'accountant') return res.status(403).json({ ok:false, message: 'Forbidden' });
+      if (req.user.role !== "accountant")
+        return res.status(403).json({ ok: false, message: "Forbidden" });
       const parsed = createSchema.body.parse(req.body);
       const body = {
         ...parsed,
@@ -48,6 +49,20 @@ router.post(
       }
 
       const expense = await Expense.create(body);
+
+      const io = req.app.get("io");
+      if (io) {
+        io.emit("stats-update");
+        io.emit("new-expense", {
+          date: expense.date,
+          by: expense.by,
+          amount: expense.amount,
+          category: expense.category,
+          note: expense.note,
+          description: expense.description,
+        });
+      }
+
       res.json({ ok: true, expense });
     } catch (e) {
       next(e);
@@ -82,6 +97,12 @@ router.delete("/:id", requireAuth, async (req, res, next) => {
     }
 
     await Expense.findByIdAndDelete(req.params.id);
+
+    const io = req.app.get("io");
+    if (io) {
+      io.emit("stats-update");
+    }
+
     res.json({ ok: true, message: "Expense deleted successfully" });
   } catch (e) {
     next(e);

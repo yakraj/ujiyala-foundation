@@ -18,6 +18,9 @@ import expensesRoutes from "./routes/expenses.routes.js";
 import statsRoutes from "./routes/stats.routes.js";
 import healthRoutes from "./routes/health.routes.js";
 import certificateRoutes from "./routes/Certificate.js";
+import publicRoutes from "./routes/public.routes.js";
+import projectsRoutes from "./routes/projects.routes.js";
+import galleryRoutes from "./routes/gallery.routes.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -39,6 +42,9 @@ app.use("/api/expenses", expensesRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/_health", healthRoutes);
 app.use("/api/certificate", certificateRoutes);
+app.use("/api/public", publicRoutes);
+app.use("/api/projects", projectsRoutes);
+app.use("/api/gallery", galleryRoutes);
 
 app.use(notFound);
 app.use(errorHandler);

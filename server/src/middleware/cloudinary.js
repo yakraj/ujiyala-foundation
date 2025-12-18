@@ -33,11 +33,13 @@ export const uploadToCloudinary = async (req, res, next) => {
       return next();
     }
 
-    // Upload to Cloudinary in the 'ujiyala-foundation/receipts' directory
+    const folder = req.cloudinaryFolder || "ujiyala-foundation/receipts";
+
+    // Upload to Cloudinary
     const result = await cloudinary.uploader
       .upload_stream(
         {
-          folder: "ujiyala-foundation/receipts",
+          folder: folder,
           resource_type: "image",
           transformation: [{ quality: "auto" }, { fetch_format: "auto" }],
         },
@@ -62,6 +64,7 @@ export const uploadToCloudinary = async (req, res, next) => {
 
 // Export multer middleware for single file upload
 export const uploadImage = upload.single("receipt");
+export const uploadProjectImage = upload.single("image");
 
 // Helper function to delete image from Cloudinary
 export const deleteFromCloudinary = async (publicId) => {

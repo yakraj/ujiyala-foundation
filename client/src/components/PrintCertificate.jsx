@@ -21,7 +21,11 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
 
       <div className="top-section">
         <div className="logo-section">
-          <img src={logo} alt="Ujiyala Foundation Logo" style={{ maxWidth: "100px" }} />
+          <img
+            src={logo}
+            alt="Ujiyala Foundation Logo"
+            style={{ maxWidth: "100px" }}
+          />
         </div>
         <div className="organization-details">
           <p className="org-name">UJIYALA FOUNDATION</p>
@@ -44,11 +48,15 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
         <div className="receipt-info-grid">
           <div>
             <span className="label">MEMBERSHIP NO</span>
-            <span className="value accent">{memberData?.membershipNo || "PM-001"}</span>
+            <span className="value accent">
+              {memberData?.membershipNo || "PM-001"}
+            </span>
           </div>
           <div>
             <span className="label">Member Type</span>
-            <span className="value">{memberData?.memberType || "Permanent (Honorary)"}</span>
+            <span className="value">
+              {memberData?.memberType || "Permanent (Honorary)"}
+            </span>
           </div>
           <div>
             <span className="label">RECEIPT ID</span>
@@ -73,17 +81,23 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
             <tr>
               <td className="col-divider">
                 <span className="details-label">NAME</span>
-                <span className="details-value accent">{memberData?.name || "Member Name"}</span>
+                <span className="details-value accent">
+                  {memberData?.name || "Member Name"}
+                </span>
               </td>
               <td>
                 <span className="details-label">Bank Name:</span>
-                <span className="details-value">Bank of Maharashtra (or similar)</span>
+                <span className="details-value">
+                  Bank of Maharashtra (or similar)
+                </span>
               </td>
             </tr>
             <tr>
               <td className="col-divider">
                 <span className="details-label">PAN NO</span>
-                <span className="details-value">{memberData?.pan || "ABCDE1234F"}</span>
+                <span className="details-value">
+                  {memberData?.pan || "ABCDE1234F"}
+                </span>
               </td>
               <td>
                 <span className="details-label">Account Number:</span>
@@ -93,7 +107,9 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
             <tr>
               <td className="col-divider">
                 <span className="details-label">CONTACT NO</span>
-                <span className="details-value">{memberData?.contactNo || "77092 94600"}</span>
+                <span className="details-value">
+                  {memberData?.contactNo || "77092 94600"}
+                </span>
               </td>
               <td>
                 <span className="details-label">IFSC Code:</span>
@@ -103,7 +119,9 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
             <tr>
               <td className="col-divider" style={{ borderBottom: "none" }}>
                 <span className="details-label">ADDRESS</span>
-                <span className="details-value">{memberData?.address || "Sinnar, Nashik, MH"}</span>
+                <span className="details-value">
+                  {memberData?.address || "Sinnar, Nashik, MH"}
+                </span>
               </td>
               <td style={{ borderBottom: "none" }}>
                 <span className="details-label">Branch:</span>
@@ -128,7 +146,9 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
                 Membership Fee (valid until{" "}
                 {memberData?.expiryDate || "15 Nov 2029"})
               </td>
-              <td style={{ textAlign: "right" }}>{memberData?.amount || "5000.00"}</td>
+              <td style={{ textAlign: "right" }}>
+                {memberData?.amount || "5000.00"}
+              </td>
             </tr>
             <tr className="total-row">
               <th>TOTAL AMOUNT RECEIVED</th>
@@ -139,14 +159,15 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
       </div>
 
       <p className="info-block">
-        Thank you for becoming a Member of the Ujiyala Foundation. Your
-        contribution supports our vision of empowering lives, serving communities,
-        and spreading hope.
+        Thank you for becoming a Member of the{" "}
+        <span className="ujiyala-font">Ujiyala Foundation</span>. Your
+        contribution supports our vision of empowering lives, serving
+        communities, and spreading hope.
       </p>
       <p className="info-block">
         All donations are eligible for Tax exemption under the relevant sections
-        of the Income Tax Act. Please refer to your Tax Exemption Certificate for
-        details.
+        of the Income Tax Act. Please refer to your Tax Exemption Certificate
+        for details.
       </p>
 
       <div className="footer-section">
@@ -200,7 +221,8 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
         NITI Aayog Unique ID : MH/2021/0281448 (Placeholder)
       </p>
       <p className="info-block small">
-        This is a computer-generated document and requires no physical signature.
+        This is a computer-generated document and requires no physical
+        signature.
       </p>
     </div>
   );
