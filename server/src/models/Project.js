@@ -4,8 +4,12 @@ const projectSchema = new mongoose.Schema(
   {
     title: { type: String, required: true },
     description: { type: String, required: true },
-    image: { type: String }, // URL from Cloudinary
-    volunteers: [{ type: String }], // List of names or IDs
+    // Keeping 'image' for backward compatibility, but new projects will use 'images'
+    image: { type: String },
+    images: [{ type: String }], // Array of image URLs
+    videos: [{ type: String }], // Array of video URLs
+    category: { type: String, default: "Rural Development" }, // New category field
+    volunteers: [{ type: String }],
     location: { type: String },
     date: { type: Date },
     duration: { type: String },

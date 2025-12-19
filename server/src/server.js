@@ -28,7 +28,30 @@ const __dirname = path.dirname(__filename);
 const app = express();
 app.set("trust proxy", 1);
 app.use(helmet());
-app.use(cors({ origin: ENV.ORIGIN, credentials: true }));
+
+// Update this section:
+const allowedOrigins = [
+  "http://localhost:5173", // Main Client
+  "http://localhost:5174", // Website (Vite often uses 5174 if 5173 is taken)
+  "http://localhost:5175",
+  "http://localhost:3000",
+  ENV.ORIGIN, // From your .env file
+].filter(Boolean);
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+      if (allowedOrigins.indexOf(origin) !== -1 || ENV.ORIGIN === "*") {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));

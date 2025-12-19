@@ -13,13 +13,23 @@ const router = express.Router();
 // Build a file:// URL for Chrome navigation
 const fileUrl = (p) => pathToFileURL(p).href;
 
-// Locate Chrome or Edge installation on Windows
+// Locate Chrome or Edge installation
 function findChrome() {
   const candidates = [
+    // Linux (Docker/Render)
+    "/usr/bin/google-chrome",
+    "/usr/bin/chromium-browser",
+    "/usr/bin/chromium",
+    "/usr/bin/google-chrome-stable",
+
+    // Windows
     "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe",
     "C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe",
     "C:\\Program Files\\Microsoft\\Edge\\Application\\msedge.exe",
     "C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe",
+
+    // macOS
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome",
   ];
   for (const p of candidates) {
     if (fs.existsSync(p)) return p;
@@ -137,6 +147,7 @@ router.post("/", express.json(), async (req, res) => {
 
     let chromeProc;
     let client;
+    const debugPort = Math.floor(Math.random() * (10000 - 9000) + 9000);
 
     try {
       const chromePath = findChrome();
@@ -147,17 +158,20 @@ router.post("/", express.json(), async (req, res) => {
         [
           "--headless=new",
           "--disable-gpu",
-          "--remote-debugging-port=9222",
+          `--remote-debugging-port=${debugPort}`,
           "--hide-scrollbars",
+          "--no-sandbox",
+          "--disable-setuid-sandbox",
+          "--disable-dev-shm-usage",
         ],
         { windowsHide: true }
       );
 
       // Wait for Chrome debugging port to open
-      await wait(500);
+      await wait(1000);
 
       // Connect to Chrome DevTools Protocol
-      client = await CDP({ port: 9222 });
+      client = await CDP({ port: debugPort });
       const { Page, Runtime, Emulation } = client;
 
       await Page.enable();
@@ -292,6 +306,7 @@ router.get("/export", async (req, res) => {
 
   let chromeProc;
   let client;
+  const debugPort = Math.floor(Math.random() * (11000 - 10001) + 10001);
 
   try {
     const chromePath = findChrome();
@@ -302,17 +317,20 @@ router.get("/export", async (req, res) => {
       [
         "--headless=new",
         "--disable-gpu",
-        "--remote-debugging-port=9222",
+        `--remote-debugging-port=${debugPort}`,
         "--hide-scrollbars",
+        "--no-sandbox",
+        "--disable-setuid-sandbox",
+        "--disable-dev-shm-usage",
       ],
       { windowsHide: true }
     );
 
     // Wait for Chrome debugging port to open
-    await wait(500);
+    await wait(1000);
 
     // Connect to Chrome DevTools Protocol
-    client = await CDP({ port: 9222 });
+    client = await CDP({ port: debugPort });
     const { Page, Runtime, Emulation } = client;
 
     await Page.enable();

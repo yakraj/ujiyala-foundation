@@ -21,6 +21,8 @@ router.post(
   uploadToCloudinary,
   async (req, res, next) => {
     try {
+      console.log("Incoming gallery creation request body:", req.body);
+      console.log("Incoming gallery creation file:", req.file);
       const body = { ...req.body };
       if (req.file && req.file.cloudinaryUrl) {
         body.imageUrl = req.file.cloudinaryUrl;
