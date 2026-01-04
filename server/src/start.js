@@ -4,14 +4,16 @@ import app from "./server.js";
 import { connectDB } from "./configs/db.js";
 import logger from "./configs/logger.js";
 import { ENV } from "./configs/env.js";
+import { corsOrigin } from "./configs/cors.js";
 
 const start = async () => {
   await connectDB();
 
   const httpServer = createServer(app);
+
   const io = new Server(httpServer, {
     cors: {
-      origin: ENV.ORIGIN,
+      origin: corsOrigin,
       methods: ["GET", "POST"],
       credentials: true,
     },
