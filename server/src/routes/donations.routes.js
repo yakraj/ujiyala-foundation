@@ -39,7 +39,9 @@ router.post(
 
 router.get("/", requireAuth, async (req, res, next) => {
   try {
-    const donations = await Donation.find().sort({ createdAt: -1 }).limit(200);
+    const donations = await Donation.find({ verified: true })
+      .sort({ createdAt: -1 })
+      .limit(200);
     res.json({ ok: true, donations });
   } catch (e) {
     next(e);

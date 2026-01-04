@@ -88,6 +88,7 @@ export default function MemberCertificate({
             >
               www.ujiyalafoundation.org
             </p>
+            <p className="block_1"></p>
           </div>
         </div>
         <p className="block_2">&nbsp;</p>

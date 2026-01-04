@@ -83,422 +83,125 @@ function Stat({
   );
 }
 
-function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
+function PayMoreModal({ expense, onClose, onSuccess }) {
+  const [amount, setAmount] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const remaining = expense.totalAmount - expense.amount;
+
+  async function onSubmit(e) {
+    e.preventDefault();
+    setLoading(true);
+    setError("");
+    try {
+      const { data } = await api.put(`/expenses/${expense._id}/pay`, {
+        amount: Number(amount),
+        date: new Date(),
+        by: "Accountant",
+      });
+      if (data.ok) {
+        onSuccess();
+        onClose();
+      }
+    } catch (e) {
+      setError(e.response?.data?.message || e.message);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[60] p-4">
+      <div className="bg-white p-6 rounded-lg w-full max-w-md shadow-xl">
+        <h2 className="text-lg font-bold mb-4">Pay More</h2>
+        <div className="mb-4 bg-gray-50 p-3 rounded">
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>Total Bill:</span> <span>₹{expense.totalAmount}</span>
+          </div>
+          <div className="flex justify-between text-sm text-gray-600">
+            <span>Paid So Far:</span> <span>₹{expense.amount}</span>
+          </div>
+          <div className="flex justify-between text-sm font-bold text-red-600 mt-1 border-t pt-1">
+            <span>Remaining:</span> <span>₹{remaining}</span>
+          </div>
+        </div>
+        <form onSubmit={onSubmit} className="space-y-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Amount to Pay
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="number"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                max={remaining}
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setAmount(remaining)}
+                className="px-3 py-2 bg-green-100 text-green-700 rounded hover:bg-green-200 text-sm font-medium"
+              >
+                Full
+              </button>
+            </div>
+          </div>
+          {error && <div className="text-red-600 text-sm">{error}</div>}
+          <div className="flex justify-end gap-2 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 bg-indigo-600 text-white rounded hover:bg-indigo-700"
+              disabled={loading}
+            >
+              {loading ? "Paying..." : "Pay & Settle"}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+function DetailModal({
+  isOpen,
+  onClose,
+  title,
+  data,
+  loading,
+  error,
+  type,
+  onRefresh,
+}) {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedImage, setSelectedImage] = useState(null);
+  const [payModalExpense, setPayModalExpense] = useState(null);
+  const [isDownloadingPdf, setIsDownloadingPdf] = useState(false);
   const printRef = useRef(null);
   const receiptRef = useRef();
+  const memberReceiptRef = useRef();
   const [selectedDonation, setSelectedDonation] = useState(null);
-  console.log(selectedDonation);
+  const [selectedMember, setSelectedMember] = useState(null);
+
   const downloadMemberPDF = (member) => {
-    try {
-      // Calculate membership expiry
-      const joinDate = new Date(member.joinedOn || member.createdAt);
-      const expiryDate = new Date(joinDate);
-      const yearsToAdd = member.memberType === "honorary" ? 5 : 1;
-      expiryDate.setFullYear(expiryDate.getFullYear() + yearsToAdd);
-
-      // Build the receipt HTML
-      const certificateHTML = `
-        <!DOCTYPE html>
-        <html lang="en">
-          <head>
-            <meta charset="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <title>Ujiyala Foundation Membership Receipt</title>
-            <style>
-              :root {
-                --primary-dark: #2c3e50;
-                --accent-color: #ff520d;
-                --border-soft: #eee;
-                --bg-light: #f9f9f9;
-              }
-              body {
-                font-family: "Inter", Arial, sans-serif;
-                margin: 0;
-                padding: 20px;
-                background-color: #fff;
-              }
-              .receipt-container {
-                width: 100%;
-                max-width: 800px;
-                margin: 0 auto;
-                padding: 20px;
-                border: 1px solid var(--border-soft);
-                box-shadow: none;
-                background-color: #fff;
-                box-sizing: border-box;
-                border-radius: 12px;
-              }
-              .header-text {
-                text-align: center;
-                font-size: 1.3em;
-                font-weight: 800;
-                margin-bottom: 25px;
-                color: var(--primary-dark);
-                border-bottom: 3px solid var(--accent-color);
-                padding-bottom: 8px;
-                text-transform: uppercase;
-              }
-              .top-section {
-                display: flex;
-                justify-content: space-between;
-                align-items: flex-start;
-                margin-bottom: 35px;
-              }
-              .logo-section {
-                width: 20%;
-                display: flex;
-                justify-content: center;
-              }
-              .logo-section img {
-                width: 90px;
-                height: 90px;
-                object-fit: contain;
-                border-radius: 8px;
-              }
-              .organization-details {
-                width: 60%;
-                font-size: 0.9em;
-                color: #555;
-                line-height: 1.5;
-              }
-              .organization-details p { margin: 0; padding: 0; }
-              .organization-details .org-name {
-                font-weight: 800;
-                color: var(--primary-dark);
-                font-size: 1.2em;
-                margin-bottom: 5px;
-              }
-              .section-box {
-                border: 1px solid var(--border-soft);
-                margin-bottom: 25px;
-                padding: 0;
-                border-radius: 6px;
-                overflow: hidden;
-              }
-              .receipt-info-grid {
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                border-left: 1px solid var(--border-soft);
-                border-top: 1px solid var(--border-soft);
-              }
-              .receipt-info-grid > div {
-                border-right: 1px solid var(--border-soft);
-                border-bottom: 1px solid var(--border-soft);
-                padding: 12px 15px;
-                font-size: 0.9em;
-                box-sizing: border-box;
-                background-color: #fff;
-              }
-              .receipt-info-grid > div:nth-child(odd) {
-                background-color: var(--bg-light);
-                border-left: none;
-              }
-              .receipt-info-grid > div:nth-child(even) { border-right: none; }
-              .receipt-info-grid .label {
-                font-weight: normal;
-                color: #777;
-                display: block;
-                margin-bottom: 2px;
-                font-size: 0.8em;
-              }
-              .receipt-info-grid .value {
-                font-weight: bold;
-                color: var(--primary-dark);
-              }
-              .receipt-info-grid .value.accent { color: var(--accent-color); }
-              .bank-details-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 0.95em;
-              }
-              .bank-details-table th,
-              .bank-details-table td {
-                padding: 14px 18px;
-                text-align: left;
-                vertical-align: top;
-                border-bottom: 1px solid var(--border-soft);
-              }
-              .bank-details-table th {
-                width: 50%;
-                font-weight: 700;
-                color: var(--primary-dark);
-                background-color: var(--bg-light);
-                border-right: 1px solid var(--border-soft);
-                text-transform: uppercase;
-              }
-              .bank-details-table td {
-                width: 50%;
-                color: #000;
-                background-color: #fff;
-              }
-              .bank-details-table tr:last-child th,
-              .bank-details-table tr:last-child td { border-bottom: none; }
-              .bank-details-table .details-label {
-                font-weight: normal;
-                color: #777;
-                display: block;
-                margin-bottom: 2px;
-                font-size: 0.8em;
-              }
-              .bank-details-table .details-value {
-                font-weight: bold;
-                color: var(--primary-dark);
-                font-size: 1em;
-              }
-              .bank-details-table .details-value.accent {
-                color: var(--accent-color);
-                font-size: 1.1em;
-              }
-              .bank-details-table .col-divider {
-                border-right: 1px solid var(--border-soft);
-              }
-              .pledge-table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 1em;
-              }
-              .pledge-table th,
-              .pledge-table td {
-                border: 1px solid var(--border-soft);
-                padding: 15px 18px;
-                text-align: left;
-              }
-              .pledge-table th {
-                background-color: var(--bg-light);
-                font-weight: 700;
-                color: var(--primary-dark);
-              }
-              .total-row th {
-                background-color: var(--primary-dark) !important;
-                color: white !important;
-                font-size: 1.2em;
-              }
-              .total-row .amount {
-                color: var(--accent-color) !important;
-                font-weight: 800;
-                text-align: right;
-                font-size: 1.3em;
-              }
-              .info-block {
-                font-size: 0.85em;
-                color: #444;
-                line-height: 1.6;
-                margin-bottom: 10px;
-                padding-left: 20px;
-                position: relative;
-              }
-              .info-block::before {
-                content: "•";
-                color: var(--accent-color);
-                font-weight: bold;
-                display: inline-block;
-                width: 1em;
-                margin-left: -1em;
-              }
-              .info-block.small {
-                font-size: 0.75em;
-                margin-top: 20px;
-                text-align: center;
-              }
-              .info-block.small::before { content: none; }
-              .niti-info {
-                text-align: center;
-                font-size: 0.75em;
-                color: #555;
-                margin-top: 25px;
-              }
-            </style>
-          </head>
-          <body>
-            <div class="receipt-container" id="receipt-content">
-              <p class="header-text">
-                UJIYALA FOUNDATION | Membership Confirmation Receipt
-              </p>
-
-              <div class="top-section">
-                <div class="logo-section">
-                  <img src="/assets/ujiyala_logo.png" alt="Ujiyala Foundation Logo" />
-                </div>
-                <div class="organization-details">
-                  <p class="org-name">UJIYALA FOUNDATION</p>
-                  <p>Lonarwadi, Sinnar, Nashik MH</p>
-                  <p style="color: var(--accent-color); font-weight: bold">
-                    www.ujiyalafoundation.org
-                  </p>
-                  <p>Contact No: +91-9198539853 / 9922555560</p>
-                </div>
-              </div>
-
-              <div class="section-box">
-                <div class="receipt-info-grid">
-                  <div>
-                    <span class="label">MEMBERSHIP NO</span>
-                    <span class="value accent">${
-                      member.membershipNo || "N/A"
-                    }</span>
-                  </div>
-                  <div>
-                    <span class="label">Member Type</span>
-                    <span class="value">${
-                      member.memberType === "honorary"
-                        ? "Permanent (Honorary)"
-                        : "General"
-                    }</span>
-                  </div>
-                  <div>
-                    <span class="label">REFERENCE ID</span>
-                    <span class="value">${member.refId || "N/A"}</span>
-                  </div>
-                  <div>
-                    <span class="label">RECEIPT DATE</span>
-                    <span class="value">${new Date().toLocaleDateString(
-                      "en-IN",
-                      { day: "numeric", month: "long", year: "numeric" }
-                    )}</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="section-box">
-                <table class="bank-details-table">
-                  <thead>
-                    <tr>
-                      <th class="col-divider">MEMBER DETAILS</th>
-                      <th>ORGANIZATION BANK DETAILS</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td class="col-divider">
-                        <span class="details-label">NAME</span>
-                        <span class="details-value accent">${member.name}</span>
-                      </td>
-                      <td>
-                        <span class="details-label">Bank Name:</span>
-                        <span class="details-value">Bank of Maharashtra</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="col-divider">
-                        <span class="details-label">EMAIL</span>
-                        <span class="details-value">${
-                          member.email || "N/A"
-                        }</span>
-                      </td>
-                      <td>
-                        <span class="details-label">Account Number:</span>
-                        <span class="details-value">60458188629</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="col-divider">
-                        <span class="details-label">CONTACT NO</span>
-                        <span class="details-value">${
-                          member.phone || "N/A"
-                        }</span>
-                      </td>
-                      <td>
-                        <span class="details-label">IFSC Code:</span>
-                        <span class="details-value">MAHB0001791</span>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td class="col-divider" style="border-bottom: none">
-                        <span class="details-label">ADDRESS</span>
-                        <span class="details-value">${
-                          member.address || "N/A"
-                        }</span>
-                      </td>
-                      <td style="border-bottom: none">
-                        <span class="details-label">Branch:</span>
-                        <span class="details-value">Nashik Branch</span>
-                      </td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <div class="section-box" style="border: none">
-                <table class="pledge-table">
-                  <thead>
-                    <tr>
-                      <th>Membership Fee / Donation Details</th>
-                      <th style="text-align: right">Amount [INR]</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    <tr>
-                      <td>Membership Fee (valid until ${expiryDate.toLocaleDateString(
-                        "en-IN",
-                        { day: "numeric", month: "long", year: "numeric" }
-                      )})</td>
-                      <td style="text-align: right">${(
-                        member.membershipFee || 0
-                      ).toFixed(2)}</td>
-                    </tr>
-                    <tr class="total-row">
-                      <th>TOTAL AMOUNT RECEIVED</th>
-                      <th class="amount">${(member.membershipFee || 0).toFixed(
-                        2
-                      )}</th>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <p class="info-block">
-                Thank you for becoming a Member of the Ujiyala Foundation. Your
-                contribution supports our vision of empowering lives, serving
-                communities, and spreading hope.
-              </p>
-              <p class="info-block">
-                All donations are eligible for Tax exemption under the relevant sections
-                of the Income Tax Act. Please refer to your Tax Exemption Certificate
-                for details.
-              </p>
-
-              <p class="niti-info">
-                NITI Aayog Unique ID : MH/2021/0281448
-              </p>
-              <p class="info-block small">
-                This is a computer-generated document and requires no physical
-                signature.
-              </p>
-            </div>
-          </body>
-        </html>
-      `;
-
-      // Create a temporary container
-      const element = document.createElement("div");
-      element.innerHTML = certificateHTML;
-      document.body.appendChild(element);
-
-      // Use html2pdf to download
-      import("html2pdf.js").then((html2pdf) => {
-        const opt = {
-          margin: 0.5,
-          filename: `${member.name}_Receipt.pdf`,
-          image: { type: "jpeg", quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
-        };
-
-        html2pdf.default()
-          .from(element.querySelector("#receipt-content"))
-          .set(opt)
-          .save()
-          .then(() => {
-            document.body.removeChild(element);
-          });
-      });
-
-    } catch (error) {
-      console.error("Error downloading PDF:", error);
-      alert("Failed to download PDF. Please try again.");
-    }
+    setSelectedMember(member);
+    setTimeout(() => {
+      if (memberReceiptRef.current) {
+        downloadComponentAsPDF(
+          memberReceiptRef,
+          `membership-receipt-${member._id}.pdf`
+        );
+      }
+    }, 100);
   };
 
   const downloadCertificate = async (member) => {
@@ -638,14 +341,30 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
     }
   };
 
-  function handleDownloadPDF() {
+  async function handleDownloadPDF() {
     if (selectedDonation) {
-      downloadComponentAsPDF(receiptRef, `receipt-${selectedDonation._id}.pdf`);
+      setIsDownloadingPdf(true);
+      try {
+        await downloadComponentAsPDF(
+          receiptRef,
+          `receipt-${selectedDonation._id}.pdf`
+        );
+      } finally {
+        setIsDownloadingPdf(false);
+      }
     }
   }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-end">
+      {isDownloadingPdf && (
+        <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/20 backdrop-blur-sm">
+          <div className="bg-white p-4 rounded-lg shadow-xl flex items-center gap-3">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-indigo-600"></div>
+            <span className="font-medium text-gray-700">Generating PDF...</span>
+          </div>
+        </div>
+      )}
       <div className="bg-white w-full rounded-t-3xl p-6 animate-slide-up max-h-[80vh] overflow-hidden flex flex-col">
         <div className="flex justify-center mb-4">
           <div className="w-12 h-1 bg-gray-300 rounded-full"></div>
@@ -756,14 +475,13 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
             {filteredData?.map((item, index) => (
               <div
                 key={item._id || index}
-                style={{
-                  backgroundColor: !item.category
-                    ? item.paymentVerified
-                      ? "#00ff8926"
-                      : "#ff000026"
-                    : "transparent",
-                }}
-                className="card"
+                className={`card ${
+                  type === "donations"
+                    ? "border-l-4 border-green-500"
+                    : type === "expenses"
+                    ? "border-l-4 border-red-500"
+                    : ""
+                }`}
               >
                 <div className="flex items-start space-x-3">
                   {getItemIcon(type)}
@@ -877,8 +595,8 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                           {item.name}
                         </p>
                         <p className="text-sm text-gray-600">
-                          <span className="font-medium">Email:</span>{" "}
-                          {item.email}
+                          <span className="font-medium">Member Type:</span>{" "}
+                          {item.memberType}
                         </p>
                         <p className="text-sm text-gray-600">
                           <span className="font-medium">Phone:</span>{" "}
@@ -906,7 +624,7 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                     )}
 
                     {/* Expense Details */}
-                    {type === "expenses" && (
+                    {(type === "expenses" || type === "partial") && (
                       <div className="mt-2 space-y-1 flex items-start gap-4">
                         <div className="flex-1">
                           <p className="text-sm text-gray-600">
@@ -954,6 +672,38 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
                               {item.notes}
                             </p>
                           )}
+
+                          {item.status === "partial" && (
+                            <div className="mt-2 bg-orange-50 p-2 rounded border border-orange-100">
+                              <div className="text-xs text-gray-600 flex gap-4 flex-wrap">
+                                <span>
+                                  Total:{" "}
+                                  <span className="font-medium">
+                                    ₹{item.totalAmount}
+                                  </span>
+                                </span>
+                                <span>
+                                  Paid:{" "}
+                                  <span className="font-medium">
+                                    ₹{item.amount}
+                                  </span>
+                                </span>
+                                <span className="text-red-600 font-medium">
+                                  Remaining: ₹{item.totalAmount - item.amount}
+                                </span>
+                              </div>
+                              {localStorage.getItem("role") ===
+                                "accountant" && (
+                                <button
+                                  onClick={() => setPayModalExpense(item)}
+                                  className="mt-2 text-xs bg-indigo-600 text-white px-3 py-1.5 rounded hover:bg-indigo-700 transition-colors"
+                                >
+                                  Pay More / Settle
+                                </button>
+                              )}
+                            </div>
+                          )}
+
                           <p className="text-sm text-red-600">
                             <span className="font-medium">Expense Amount:</span>{" "}
                             ₹{item.amount?.toLocaleString() || 0}
@@ -1069,7 +819,21 @@ function DetailModal({ isOpen, onClose, title, data, loading, error, type }) {
         {selectedDonation && (
           <DonationReceipt ref={receiptRef} donation={selectedDonation} />
         )}
+        {selectedMember && (
+          <MemberReceipt ref={memberReceiptRef} member={selectedMember} />
+        )}
       </div>
+
+      {payModalExpense && (
+        <PayMoreModal
+          expense={payModalExpense}
+          onClose={() => setPayModalExpense(null)}
+          onSuccess={() => {
+            if (onRefresh) onRefresh();
+            setPayModalExpense(null);
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -1112,6 +876,7 @@ export default function Dashboard() {
       if (type === "membersfund") endpoint = "/membersfund";
       else if (type === "pending") endpoint = "/donations/pending";
       else if (type === "memberrequests") endpoint = "/members/requests";
+      else if (type === "partial") endpoint = "/expenses?status=partial";
       else endpoint = `/${type}`;
       const { data } = await api.get(endpoint);
 
@@ -1120,6 +885,8 @@ export default function Dashboard() {
         let responseData = [];
         if (type === "membersfund") {
           responseData = data.members || data.membersfund || [];
+        } else if (type === "partial") {
+          responseData = data.expenses || [];
         } else {
           responseData = data[type] || [];
         }
@@ -1136,6 +903,8 @@ export default function Dashboard() {
             ? "Pending Receipts"
             : type === "memberrequests"
             ? "Member Requests"
+            : type === "partial"
+            ? "Partial Payments"
             : "All Expenses"
         );
         setModalOpen(true);
@@ -1155,9 +924,6 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* <MemberCertificate /> */}
-      <DonationReceipt />
-      {/* <MemberReceipt /> */}
       {/* Header */}
 
       {/* Loading and Error States */}
@@ -1276,7 +1042,28 @@ export default function Dashboard() {
               }
               color="bg-red-100"
             />
-
+            <Stat
+              label="Partials Payments"
+              value={summary.partialRemaining}
+              isClickable={true}
+              onClick={() => fetchModalData("partial")}
+              icon={
+                <svg
+                  className="w-6 h-6 text-orange-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              }
+              color="bg-orange-100"
+            />
             <Stat
               label="Total Members"
               value={summary.membersCount}
@@ -1310,36 +1097,71 @@ export default function Dashboard() {
               {["accountant", "president", "secretary"].includes(
                 localStorage.getItem("role")
               ) && (
-                <button
-                  onClick={() => (window.location.href = "/pending-actions")}
-                  className="p-4 bg-white rounded-xl border border-gray-200 hover:border-yellow-300 hover:bg-yellow-50 transition-all duration-200 text-left"
-                >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
-                      <svg
-                        className="w-5 h-5 text-yellow-600"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M12 8v4l3 3"
-                        />
-                      </svg>
-                    </div>
-                    <div>
-                      <div className="font-medium text-gray-900">
-                        Pending Actions
+                <>
+                  <button
+                    onClick={() => (window.location.href = "/pending-actions")}
+                    className="p-4 bg-white rounded-xl border border-gray-200 hover:border-yellow-300 hover:bg-yellow-50 transition-all duration-200 text-left"
+                  >
+                    <div className="flex items-center space-x-3">
+                      <div className="w-10 h-10 bg-yellow-100 rounded-full flex items-center justify-center">
+                        <svg
+                          className="w-5 h-5 text-yellow-600"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 8v4l3 3"
+                          />
+                        </svg>
                       </div>
-                      <div className="text-sm text-gray-500">
-                        View all pending donations & requests
+                      <div>
+                        <div className="font-medium text-gray-900">
+                          Pending Actions
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          Approvals & Verifications
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </button>
+                  </button>
+
+                  {localStorage.getItem("role") === "accountant" && (
+                    <button
+                      onClick={() => fetchModalData("partial")}
+                      className="p-4 bg-white rounded-xl border border-gray-200 hover:border-orange-300 hover:bg-orange-50 transition-all duration-200 text-left"
+                    >
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
+                          <svg
+                            className="w-5 h-5 text-orange-600"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </div>
+                        <div>
+                          <div className="font-medium text-gray-900">
+                            Partial Payments
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            View pending payments
+                          </div>
+                        </div>
+                      </div>
+                    </button>
+                  )}
+                </>
               )}
               <button
                 onClick={() => fetchModalData("donations")}
@@ -1445,6 +1267,7 @@ export default function Dashboard() {
         loading={modalLoading}
         error={modalError}
         type={modalType}
+        onRefresh={() => fetchModalData(modalType)}
       />
     </div>
   );

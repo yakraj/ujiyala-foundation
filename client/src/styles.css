@@ -19,6 +19,7 @@ body {
   @apply bg-slate-50 text-slate-900;
 }
 .card {
+  border: 1px solid #80808026;
   @apply bg-white rounded-2xl shadow p-4;
 }
 .btn {

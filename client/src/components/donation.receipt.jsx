@@ -1,6 +1,8 @@
 import React, { forwardRef } from "react";
 import "./pdf.styles.css";
 import logo from "../../assets/ujiyala_logo.png";
+import hope from "../../assets/hope.png";
+
 // Accept donation data as props and ref for PDF
 const DonationReceipt = forwardRef(({ donation }, ref) => {
   if (!donation) return null;
@@ -13,31 +15,41 @@ const DonationReceipt = forwardRef(({ donation }, ref) => {
       {/* Load jsPDF for creating and downloading the PDF */}
 
       <div className="receipt-container" id="receiptContent">
-        {/* UPDATED: Only Donation Receipt */}
-        <p className="header-text">UJIYALA FOUNDATION | Donation Receipt</p>
         <div className="top-section">
           <div className="logo-section">
-            {/* Placeholder for Ujiyala Foundation Logo */}
             <img src={logo} alt="Ujiyala Foundation Logo" />
           </div>
           <div className="organization-details">
-            <p className="org-name">UJIYALA FOUNDATION</p>
-            {/* Details from your previous HTML */}
-            <p>Lonarwadi, Sinnar, Nashik MH</p>
-            <p style={{ color: "var(--accent-color)", fontWeight: "bold" }}>
-              www.ujiyalafoundation.org
-            </p>
-            <p>Contact No: +91-9284069880 </p>
+            <h1 className="org-name">UJIYALA FOUNDATION</h1>
+            <p className="reg-no">Reg. No: Nashik/0001052/2025</p>
+            <div className="org-contact-info">
+              <div className="contact-item">
+                <span className="contact-icon">📍</span>
+                <span>Lonarwadi, Sinnar, Nashik, Maharashtra - 422103</span>
+              </div>
+              <div className="contact-item">
+                <span className="contact-icon">📞</span>
+                <span>+91 92840 69880 | +91 98234 56789</span>
+              </div>
+              <div className="contact-item">
+                <span className="contact-icon">🌐</span>
+                <span
+                  style={{ color: "var(--accent-color)", fontWeight: "bold" }}
+                >
+                  www.ujiyalafoundation.org
+                </span>
+              </div>
+            </div>
           </div>
           <div className="hands-graphic">
-            {/* Placeholder for the hands graphic */}
-            <img
-              width={260}
-              src="../../assets/hope.png"
-              alt="Empowering Lives"
-            />
+            <img src={hope} alt="Empowering Lives" />
           </div>
         </div>
+
+        <div className="header-bar">
+          <div className="header-badge">Donation Receipt</div>
+        </div>
+
         <div className="section-box">
           <div className="receipt-info-grid">
             {/* UPDATED: Donation ID */}
@@ -114,13 +126,13 @@ const DonationReceipt = forwardRef(({ donation }, ref) => {
                 </td>
               </tr>
               <tr>
-                <td className="col-divider" style={{ borderBottom: "none" }}>
+                <td className="col-divider">
                   <span className="details-label">ADDRESS</span>
                   <span className="details-value">
                     {donation.address || "Sinnar, Nashik, MH"}
                   </span>
                 </td>
-                <td style={{ borderBottom: "none" }}>
+                <td>
                   <span className="details-label">Branch:</span>
                   <span className="details-value">Nashik Branch</span>
                 </td>
@@ -128,21 +140,19 @@ const DonationReceipt = forwardRef(({ donation }, ref) => {
             </tbody>
           </table>
         </div>
-        <div className="section-box" style={{ border: "none" }}>
+        <div className="section-box">
           <table className="pledge-table">
             <thead>
               <tr>
                 <th>Donation Details</th>
-                <th style={{ textAlign: "right" }}>Amount [INR]</th>
+                <th>Amount [INR]</th>
               </tr>
             </thead>
             <tbody>
               <tr>
                 {/* UPDATED: Generic Donation Description */}
                 <td>{donation.donationType || "General Fund Contribution"}</td>
-                <td style={{ textAlign: "right" }}>
-                  {donation.amount?.toFixed(2)}
-                </td>
+                <td>{donation.amount?.toFixed(2)}</td>
               </tr>
               <tr className="total-row">
                 <th>TOTAL AMOUNT RECEIVED</th>

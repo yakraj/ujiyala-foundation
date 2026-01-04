@@ -217,9 +217,7 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
         </div>
       </div>
 
-      <p className="niti-info">
-        NITI Aayog Unique ID : MH/2021/0281448 (Placeholder)
-      </p>
+      <p className="niti-info">Reg. No: Nashik/0001052/2025</p>
       <p className="info-block small">
         This is a computer-generated document and requires no physical
         signature.

@@ -35,6 +35,8 @@ const allowedOrigins = [
   "http://localhost:5174", // Website (Vite often uses 5174 if 5173 is taken)
   "http://localhost:5175",
   "http://localhost:3000",
+  "https://www.ujiyalafoundation.org",
+  "https://ujiyalafoundation.org",
   ENV.ORIGIN, // From your .env file
 ].filter(Boolean);
 

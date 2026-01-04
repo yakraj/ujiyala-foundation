@@ -162,16 +162,11 @@ export default function Donations() {
         {list.map((d) => (
           <div
             key={d._id}
-            className="card flex items-start justify-between gap-3"
+            className="card flex items-start justify-between gap-3 border-l-4 border-green-500"
           >
             <div>
               <div className="font-medium">
-                {d.donorName} • ₹{d.amount}{" "}
-                {d.verified ? (
-                  <span className="text-sm text-green-600">(verified)</span>
-                ) : (
-                  <span className="text-sm text-orange-600">(pending)</span>
-                )}
+                {d.donorName} • ₹{d.amount}
               </div>
               <div className="text-sm text-slate-500">
                 {new Date(d.date).toLocaleDateString()} • {d.method} •{" "}
@@ -180,17 +175,6 @@ export default function Donations() {
               {d.note && <div className="text-sm mt-1">{d.note}</div>}
             </div>
             <div className="flex flex-col gap-2">
-              {role === "accountant" && !d.verified && (
-                <button
-                  className="btn"
-                  onClick={async () => {
-                    await api.post(`/donations/${d._id}/verify`);
-                    load();
-                  }}
-                >
-                  Verify
-                </button>
-              )}
               {/* <button className="btn" onClick={() => handleShowReceipt(d)}>
                 Download Receipt
               </button> */}

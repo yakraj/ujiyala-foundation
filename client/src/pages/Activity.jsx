@@ -162,7 +162,16 @@ export default function Activity() {
 
       <div className="space-y-3">
         {activities.map((activity) => (
-          <div key={activity.id} className="card">
+          <div
+            key={activity.id}
+            className={`card ${
+              activity.type === "donation"
+                ? "border-l-4 border-green-500"
+                : activity.type === "expense"
+                ? "border-l-4 border-red-500"
+                : ""
+            }`}
+          >
             <div className="flex items-start space-x-3">
               <div
                 className={`w-10 h-10 rounded-full flex items-center justify-center ${

@@ -120,7 +120,7 @@ export default function PendingActions() {
             {donations.map((d) => (
               <div
                 key={d._id}
-                className="card flex items-center justify-between"
+                className="card flex items-center justify-between border-l-4 border-green-500"
               >
                 <div>
                   <div className="font-medium">
