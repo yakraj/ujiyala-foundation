@@ -37,6 +37,7 @@ const allowedOrigins = [
   "http://localhost:3000",
   "https://www.ujiyalafoundation.org",
   "https://ujiyalafoundation.org",
+  "https://wwl38t1g0ci6tp4hk9jv7by2f5sx8da7zq9b5vn0.ujiyalafoundation.org",
   ENV.ORIGIN, // From your .env file
 ].filter(Boolean);
 
