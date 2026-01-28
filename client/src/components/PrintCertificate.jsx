@@ -74,7 +74,7 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
           <thead>
             <tr>
               <th className="col-divider">MEMBER DETAILS</th>
-              <th>ORGANIZATION BANK DETAILS</th>
+              <th>UJIYALA FOUNDATION'S BANK DETAILS</th>
             </tr>
           </thead>
           <tbody>
@@ -87,9 +87,7 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
               </td>
               <td>
                 <span className="details-label">Bank Name:</span>
-                <span className="details-value">
-                  Bank of Maharashtra (or similar)
-                </span>
+                <span className="details-value">HDFC BANK LTD</span>
               </td>
             </tr>
             <tr>
@@ -101,7 +99,7 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
               </td>
               <td>
                 <span className="details-label">Account Number:</span>
-                <span className="details-value">9876543210</span>
+                <span className="details-value">50100219277325</span>
               </td>
             </tr>
             <tr>
@@ -113,7 +111,7 @@ const PrintCertificate = React.forwardRef(({ memberData }, ref) => {
               </td>
               <td>
                 <span className="details-label">IFSC Code:</span>
-                <span className="details-value">MAHA0001234</span>
+                <span className="details-value">HDFC0002791</span>
               </td>
             </tr>
             <tr>

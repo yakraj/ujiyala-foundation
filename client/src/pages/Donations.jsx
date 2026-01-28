@@ -11,6 +11,7 @@ export default function Donations() {
   const [form, setForm] = useState({
     donorName: "",
     phone: "",
+    address: "",
     amount: "",
     donationType: "general",
     method: "cash",
@@ -44,6 +45,7 @@ export default function Donations() {
         setForm({
           donorName: "",
           phone: "",
+          address: "",
           amount: "",
           donationType: "general",
           method: "cash",
@@ -141,6 +143,14 @@ export default function Donations() {
               className="input"
               value={form.date}
               onChange={(e) => setForm({ ...form, date: e.target.value })}
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <label className="label">Address</label>
+            <input
+              className="input"
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
             />
           </div>
           <div className="sm:col-span-2">

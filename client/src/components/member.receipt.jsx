@@ -80,7 +80,7 @@ const MemberReceipt = forwardRef(({ member }, ref) => {
             <thead>
               <tr>
                 <th className="col-divider">MEMBER DETAILS</th>
-                <th>ORGANIZATION BANK DETAILS</th>
+                <th>UJIYALA FOUNDATION'S BANK DETAILS</th>
               </tr>
             </thead>
             <tbody>
@@ -96,9 +96,7 @@ const MemberReceipt = forwardRef(({ member }, ref) => {
                 </td>
                 <td>
                   <span className="details-label">Bank Name:</span>
-                  <span className="details-value">
-                    Bank of Maharashtra (or similar)
-                  </span>
+                  <span className="details-value">HDFC BANK LTD</span>
                 </td>
               </tr>
               <tr>
@@ -108,7 +106,7 @@ const MemberReceipt = forwardRef(({ member }, ref) => {
                 </td>
                 <td>
                   <span className="details-label">Account Number:</span>
-                  <span className="details-value">9876543210</span>
+                  <span className="details-value">50100219277325</span>
                 </td>
               </tr>
               <tr>
@@ -118,15 +116,13 @@ const MemberReceipt = forwardRef(({ member }, ref) => {
                 </td>
                 <td>
                   <span className="details-label">IFSC Code:</span>
-                  <span className="details-value">MAHA0001234</span>
+                  <span className="details-value">HDFC0002791</span>
                 </td>
               </tr>
               <tr>
                 <td className="col-divider">
                   <span className="details-label">ADDRESS</span>
-                  <span className="details-value">
-                    {member.address || "Sinnar, Nashik, MH"}
-                  </span>
+                  <span className="details-value">{member.address}</span>
                 </td>
                 <td>
                   <span className="details-label">Branch:</span>

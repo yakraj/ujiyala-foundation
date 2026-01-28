@@ -12,6 +12,7 @@ const createSchema = {
     donorName: z.string().min(2),
     email: z.string().email().optional().or(z.literal("")),
     phone: z.string().optional().or(z.literal("")),
+    address: z.string().optional().or(z.literal("")),
     amount: z.number().min(1),
     method: z.enum(["cash", "upi", "bank", "card", "other"]).default("cash"),
     date: z.string().optional(),
@@ -34,7 +35,7 @@ router.post(
     } catch (e) {
       next(e);
     }
-  }
+  },
 );
 
 router.get("/", requireAuth, async (req, res, next) => {
@@ -53,7 +54,7 @@ router.get("/pending", requireAuth, async (req, res, next) => {
   try {
     console.debug(
       "/api/donations/pending called by user:",
-      req.user && { sub: req.user.sub, role: req.user.role }
+      req.user && { sub: req.user.sub, role: req.user.role },
     );
     const donations = await Donation.find({ verified: false })
       .sort({ createdAt: -1 })
@@ -69,7 +70,7 @@ router.get("/pending", requireAuth, async (req, res, next) => {
           obj.addedByName = u?.name || obj.addedBy;
         }
         return obj;
-      })
+      }),
     );
     res.json({ ok: true, donations: enriched });
   } catch (e) {

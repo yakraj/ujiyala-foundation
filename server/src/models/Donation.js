@@ -6,6 +6,7 @@ const donationSchema = new mongoose.Schema(
     donorName: { type: String, required: true },
     email: { type: String },
     phone: { type: String },
+    address: { type: String },
     amount: { type: Number, required: true },
     donationId: {
       type: String,
@@ -31,6 +32,6 @@ const donationSchema = new mongoose.Schema(
     note: { type: String },
     // receiptPdfPath removed (PDF receipts disabled)
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 export default mongoose.model("Donation", donationSchema);
